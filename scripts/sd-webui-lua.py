@@ -17,12 +17,16 @@ LUA_gallery = []
 
 def lua_run(lua_code):
     global LUA_output, LUA_gallery
-    result = L.execute(lua_code)
+    try:
+        result = L.execute(lua_code)
+    except Exception as err:
+        result = f"ERROR: {err}"
+        print(f"LUA {result}")
     if result:
-        LUA_output = result
+        LUA_output += str(result)+'\n'
     return LUA_output, LUA_gallery
 
-def lua_reset(lua_code):
+def lua_reset():
     global L, G, LUA_output, LUA_gallery
     L = lupa.LuaRuntime(register_eval=False, attribute_filter=filter_attribute_access)
     G = L.globals()
@@ -30,15 +34,24 @@ def lua_reset(lua_code):
     LUA_gallery = []
     # Setup python functions
     G.console = sd_lua_console
+    G.clear = sd_lua_output_clear
     G.process = sd_lua_process
     G.gallery_add = sd_lua_gallery_add
     G.gallery_reset = sd_lua_gallery_reset
+    return LUA_output, LUA_gallery
+
+def lua_refresh():
+    global LUA_output, LUA_gallery
     return LUA_output, LUA_gallery
 
 # Functions for Lua
 
 def sd_lua_console(text):
     print(f"Lua: {text}")
+
+def sd_lua_output_clear():
+    global LUA_output
+    LUA_output = ''
 
 def sd_lua_process(prompt):
     p = StableDiffusionProcessingTxt2Img(
@@ -87,22 +100,27 @@ def sd_lua_gallery_reset():
     global LUA_gallery
     LUA_gallery = []
 
-lua_reset('')
-
 def add_tab():
     with gr.Blocks(analytics_enabled=False) as tab:
         with gr.Row():
-            lua_code = gr.Textbox(label="Lua", show_label=False, lines=20, placeholder="(Lua code)").style(container=False)
-        with gr.Row():
-            run = gr.Button('Run', variant='primary')
-            reset = gr.Button('Reset')
-        with gr.Row():
-            results = gr.Textbox(label="Output", show_label=True, lines=10)
-            gallery = gr.Gallery(label="Gallery").style(preview=True)
+            with gr.Column(scale=1):
+                lua_code = gr.Textbox(label="Lua", show_label=False, lines=30, placeholder="(Lua code)").style(container=False)
+                with gr.Row():
+                    run = gr.Button('Run', variant='primary')
+                    reset = gr.Button('Reset')
+                    refresh = gr.Button('Refresh')
+            with gr.Column(scale=1):
+                with gr.Row():
+                    gallery = gr.Gallery(label="Gallery").style(preview=True, grid=4)
+                with gr.Row():
+                    results = gr.Textbox(label="Output", show_label=True, lines=10)
 
         run.click(lua_run, inputs=[lua_code], outputs=[results, gallery])
-        reset.click(lua_reset, inputs=[lua_code], outputs=[results, gallery])
+        reset.click(lua_reset, inputs=[], outputs=[results, gallery])
+        refresh.click(lua_refresh, inputs=[], outputs=[results, gallery])
 
     return [(tab, "Lua", "lua")]
+
+lua_reset()
 
 script_callbacks.on_ui_tabs(add_tab)
