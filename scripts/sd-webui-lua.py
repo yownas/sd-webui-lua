@@ -1,4 +1,6 @@
 import lupa
+#import numpy as np
+from PIL import Image
 from modules import scripts, script_callbacks, devices, ui, shared
 import gradio as gr
 
@@ -24,7 +26,8 @@ def lua_run(lua_code):
         print(f"LUA {result}")
     if result:
         LUA_output += str(result)+'\n'
-    return LUA_output, LUA_gallery
+    # Weird work-around, gr.Gallery seem to freeze the ui if it get an empty reply
+    return LUA_output, LUA_gallery if len(LUA_gallery) else [Image.frombytes("L", (1, 1), b'\x00')]
 
 def lua_reset():
     global L, G, LUA_output, LUA_gallery
@@ -37,17 +40,21 @@ def lua_reset():
     G.clear = sd_lua_output_clear
     G.process = sd_lua_process
     G.gallery_add = sd_lua_gallery_add
-    G.gallery_reset = sd_lua_gallery_reset
-    return LUA_output, LUA_gallery
+    G.gallery_clear = sd_lua_gallery_clear
+    return LUA_output, LUA_gallery if len(LUA_gallery) else [Image.frombytes("L", (1, 1), b'\x00')]
 
 def lua_refresh():
     global LUA_output, LUA_gallery
-    return LUA_output, LUA_gallery
+    return LUA_output, LUA_gallery if len(LUA_gallery) else [Image.frombytes("L", (1, 1), b'\x00')]
 
 # Functions for Lua
 
 def sd_lua_console(text):
     print(f"Lua: {text}")
+
+def sd_lua_output(text):
+    global LUA_output
+    LUA_output += str(result)+'\n'
 
 def sd_lua_output_clear():
     global LUA_output
@@ -96,7 +103,7 @@ def sd_lua_gallery_add(image):
     global LUA_gallery
     LUA_gallery.append(image)
 
-def sd_lua_gallery_reset():
+def sd_lua_gallery_clear():
     global LUA_gallery
     LUA_gallery = []
 
@@ -115,12 +122,12 @@ def add_tab():
                 with gr.Row():
                     results = gr.Textbox(label="Output", show_label=True, lines=10)
 
+        reset.click(lua_reset, show_progress=False, inputs=[], outputs=[results, gallery])
         run.click(lua_run, inputs=[lua_code], outputs=[results, gallery])
-        reset.click(lua_reset, inputs=[], outputs=[results, gallery])
-        refresh.click(lua_refresh, inputs=[], outputs=[results, gallery])
+        refresh.click(lua_refresh, show_progress=False, inputs=[], outputs=[results, gallery])
 
     return [(tab, "Lua", "lua")]
 
-lua_reset()
+x,y = lua_reset()
 
 script_callbacks.on_ui_tabs(add_tab)

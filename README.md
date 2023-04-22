@@ -5,4 +5,23 @@ This is an extension for [Vlad's automatic](https://github.com/vladmandic/automa
 
 It is also NOT a serious extension. It is mostly just an experiment from my side to see if it was possible to do or not. Do not use it. :)
 
-# Lua
+# Issues
+
+* Gradios Gallery seem to freeze if it get and empty result. "Solved" at the moment by giving it a 1x1 pixel place holder.
+
+* Needs a lot more hooks into the functions to generate images.
+
+# Lua commands
+
+`console(text)` Print text string console. (Same as print()) 
+
+`output(text)` Add text to Output textbox.
+
+`output_clear()` Clear Output textbox.
+
+`process(prompt)` Process a string, returns an image.
+
+`gallery_add(image)` Add image to the gallery.
+
+`gallery_clear()` Clear the gallery.
+
