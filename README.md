@@ -25,3 +25,5 @@ It is also NOT a serious extension. It is mostly just an experiment from my side
 
 `gallery_clear()` Clear the gallery.
 
+`clip(text)` 
+
