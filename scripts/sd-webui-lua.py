@@ -495,135 +495,117 @@ def sd_lua_pipeline(prompt):
         with devices.autocast():
             p.init(p.all_prompts, p.all_seeds, p.all_subseeds)
 
-        #FIXME not needed? just one image
-        if state.job_count == -1:
-            state.job_count = p.n_iter
-
         extra_network_data = None
 
-        #FIXME just have one image?
-        for n in range(p.n_iter):
-            print(f"FIXME: {n}") #REMOVE
-        
-            p.iteration = n
+        #FIXME just have one image? (iter loop)
+        p.iteration = 666 #FIXME
 
-            #FIXME skip button?
-            if state.skipped:
-                state.skipped = False
+        prompts = p.all_prompts[0:1]
+        negative_prompts = p.all_negative_prompts[0:1]
+        seeds = p.all_seeds[0:1]
+        subseeds = p.all_subseeds[0:1]
 
-            if state.interrupted:
-                break
+        #Make this check somewhere else?
+        #if len(prompts) == 0: #FIXME can't break out of nothing
+        #    break
 
-            prompts = p.all_prompts[n * p.batch_size:(n + 1) * p.batch_size]
-            negative_prompts = p.all_negative_prompts[n * p.batch_size:(n + 1) * p.batch_size]
-            seeds = p.all_seeds[n * p.batch_size:(n + 1) * p.batch_size]
-            subseeds = p.all_subseeds[n * p.batch_size:(n + 1) * p.batch_size]
-
-            if len(prompts) == 0:
-                break
-
-            step_multiplier = 1
-            if not shared.opts.dont_fix_second_order_samplers_schedule:
-                try:
-                    step_multiplier = 2 if sd_samplers.all_samplers_map.get(p.sampler_name).aliases[0] in ['k_dpmpp_2s_a', 'k_dpmpp_2s_a_ka', 'k_dpmpp_sde', 'k_dpmpp_sde_ka', 'k_dpm_2', 'k_dpm_2_a', 'k_heun'] else 1
-                except:
-                    pass
-
-            #FIXME prompts? just a string, if one image?
-            with devices.autocast():
-                c = prompt_parser.get_multicond_learned_conditioning(shared.sd_model, prompts, p.steps * step_multiplier)
-                uc = prompt_parser.get_learned_conditioning(shared.sd_model, negative_prompts, p.steps * step_multiplier)
-
-            #FIXME add function to convert multicond to cond, so we can use same function for c and uc
-
-            if p.n_iter > 1:
-                shared.state.job = f"Batch {n+1} out of {p.n_iter}"
-
-            # Diffuse
-            #with devices.without_autocast() if devices.unet_needs_upcast else devices.autocast():
-            #    samples_ddim = p.sample(conditioning=c, unconditional_conditioning=uc, seeds=seeds, subseeds=subseeds, subseed_strength=p.subseed_strength, prompts=prompts)
-            samples_ddim = sd_lua_sample(p, c, uc, seeds, subseeds, p.subseed_strength, prompts)
-
-            x_samples_ddim = [decode_first_stage(p.sd_model, samples_ddim[i:i+1].to(dtype=devices.dtype_vae))[0].cpu() for i in range(samples_ddim.size(0))]
+        step_multiplier = 1
+        if not shared.opts.dont_fix_second_order_samplers_schedule:
             try:
+                step_multiplier = 2 if sd_samplers.all_samplers_map.get(p.sampler_name).aliases[0] in ['k_dpmpp_2s_a', 'k_dpmpp_2s_a_ka', 'k_dpmpp_sde', 'k_dpmpp_sde_ka', 'k_dpm_2', 'k_dpm_2_a', 'k_heun'] else 1
+            except:
+                pass
+
+        #FIXME prompts? just a string, if one image?
+        with devices.autocast():
+            c = prompt_parser.get_multicond_learned_conditioning(shared.sd_model, prompts, p.steps * step_multiplier)
+            uc = prompt_parser.get_learned_conditioning(shared.sd_model, negative_prompts, p.steps * step_multiplier)
+
+        #FIXME add function to convert multicond to cond, so we can use same function for c and uc
+
+        # Diffuse
+        samples_ddim = sd_lua_sample(p, c, uc, seeds, subseeds, p.subseed_strength, prompts)
+
+        #FIXME move to vae function?
+        x_samples_ddim = [decode_first_stage(p.sd_model, samples_ddim[i:i+1].to(dtype=devices.dtype_vae))[0].cpu() for i in range(samples_ddim.size(0))]
+        try:
+            for x in x_samples_ddim:
+                devices.test_for_nans(x, "vae")
+        except devices.NansException as e:
+            if not shared.cmd_opts.no_half and not shared.cmd_opts.no_half_vae and shared.cmd_opts.rollback_vae:
+                print('\nA tensor with all NaNs was produced in VAE, try converting to bf16.')
+                devices.dtype_vae = torch.bfloat16
+                vae_file, vae_source = sd_vae.resolve_vae(p.sd_model.sd_model_checkpoint)
+                sd_vae.load_vae(p.sd_model, vae_file, vae_source)
+                x_samples_ddim = [decode_first_stage(p.sd_model, samples_ddim[i:i+1].to(dtype=devices.dtype_vae))[0].cpu() for i in range(samples_ddim.size(0))]
                 for x in x_samples_ddim:
                     devices.test_for_nans(x, "vae")
-            except devices.NansException as e:
-                if not shared.cmd_opts.no_half and not shared.cmd_opts.no_half_vae and shared.cmd_opts.rollback_vae:
-                    print('\nA tensor with all NaNs was produced in VAE, try converting to bf16.')
-                    devices.dtype_vae = torch.bfloat16
-                    vae_file, vae_source = sd_vae.resolve_vae(p.sd_model.sd_model_checkpoint)
-                    sd_vae.load_vae(p.sd_model, vae_file, vae_source)
-                    x_samples_ddim = [decode_first_stage(p.sd_model, samples_ddim[i:i+1].to(dtype=devices.dtype_vae))[0].cpu() for i in range(samples_ddim.size(0))]
-                    for x in x_samples_ddim:
-                        devices.test_for_nans(x, "vae")
-                else:
-                    raise e
+            else:
+                raise e
 
-            x_samples_ddim = torch.stack(x_samples_ddim).float()
-            x_samples_ddim = torch.clamp((x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
+        x_samples_ddim = torch.stack(x_samples_ddim).float()
+        x_samples_ddim = torch.clamp((x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
 
-            del samples_ddim
+        del samples_ddim
 
-            if shared.cmd_opts.lowvram or shared.cmd_opts.medvram:
-                lowvram.send_everything_to_cpu()
 
-            devices.torch_gc()
+        if shared.cmd_opts.lowvram or shared.cmd_opts.medvram:
+            lowvram.send_everything_to_cpu()
 
-            for i, x_sample in enumerate(x_samples_ddim):
-                x_sample = 255. * np.moveaxis(x_sample.cpu().numpy(), 0, 2)
-                x_sample = x_sample.astype(np.uint8)
+        devices.torch_gc()
 
-                if p.restore_faces:
-                    if opts.save and not p.do_not_save_samples and opts.save_images_before_face_restoration:
-                        images.save_image(Image.fromarray(x_sample), p.outpath_samples, "", seeds[i], prompts[i], opts.samples_format, info=infotext(n, i), p=p, suffix="-before-face-restoration")
+        for i, x_sample in enumerate(x_samples_ddim):
+            x_sample = 255. * np.moveaxis(x_sample.cpu().numpy(), 0, 2)
+            x_sample = x_sample.astype(np.uint8)
 
-                    devices.torch_gc()
+            #FIXME move to separate function?
+            #if p.restore_faces:
+            #    if opts.save and not p.do_not_save_samples and opts.save_images_before_face_restoration:
+            #        images.save_image(Image.fromarray(x_sample), p.outpath_samples, "", seeds[i], prompts[i], opts.samples_format, info=infotext(n, i), p=p, suffix="-before-face-restoration")
+            #    devices.torch_gc()
+            #    x_sample = modules.face_restoration.restore_faces(x_sample)
+            #    devices.torch_gc()
 
-                    x_sample = modules.face_restoration.restore_faces(x_sample)
-                    devices.torch_gc()
+            image = Image.fromarray(x_sample)
 
-                image = Image.fromarray(x_sample)
+            #FIXME color corrections
+            #if p.color_corrections is not None and i < len(p.color_corrections):
+            #    if opts.save and not p.do_not_save_samples and opts.save_images_before_color_correction:
+            #        image_without_cc = apply_overlay(image, p.paste_to, i, p.overlay_images)
+            #        images.save_image(image_without_cc, p.outpath_samples, "", seeds[i], prompts[i], opts.samples_format, info=infotext(n, i), p=p, suffix="-before-color-correction")
+            #    image = apply_color_correction(p.color_corrections[i], image)
 
-                if p.color_corrections is not None and i < len(p.color_corrections):
-                    if opts.save and not p.do_not_save_samples and opts.save_images_before_color_correction:
-                        image_without_cc = apply_overlay(image, p.paste_to, i, p.overlay_images)
-                        images.save_image(image_without_cc, p.outpath_samples, "", seeds[i], prompts[i], opts.samples_format, info=infotext(n, i), p=p, suffix="-before-color-correction")
-                    image = apply_color_correction(p.color_corrections[i], image)
+            #FIXME overlays?
+            #image = apply_overlay(image, p.paste_to, i, p.overlay_images)
 
-                #FIXME overlays?
-                image = apply_overlay(image, p.paste_to, i, p.overlay_images)
+            if opts.samples_save and not p.do_not_save_samples:
+                images.save_image(image, p.outpath_samples, "", seeds[i], prompts[i], opts.samples_format, info=infotext(0, i), p=p)
 
-                if opts.samples_save and not p.do_not_save_samples:
-                    images.save_image(image, p.outpath_samples, "", seeds[i], prompts[i], opts.samples_format, info=infotext(n, i), p=p)
+            text = infotext(0, i)
+            infotexts.append(text)
+            if opts.enable_pnginfo:
+                image.info["parameters"] = text
+            output_images.append(image)
 
-                text = infotext(n, i)
-                infotexts.append(text)
-                if opts.enable_pnginfo:
-                    image.info["parameters"] = text
-                output_images.append(image)
+            #FIXME mask for overlay
+            #if hasattr(p, 'mask_for_overlay') and p.mask_for_overlay and any([opts.save_mask, opts.save_mask_composite, opts.return_mask, opts.return_mask_composite]):
+            #    image_mask = p.mask_for_overlay.convert('RGB')
+            #    image_mask_composite = Image.composite(image.convert('RGBA').convert('RGBa'), Image.new('RGBa', image.size), images.resize_image(2, p.mask_for_overlay, image.width, image.height).convert('L')).convert('RGBA')
+            #    if opts.save_mask:
+            #        images.save_image(image_mask, p.outpath_samples, "", seeds[i], prompts[i], opts.samples_format, info=infotext(0, i), p=p, suffix="-mask")
+            #    if opts.save_mask_composite:
+            #        images.save_image(image_mask_composite, p.outpath_samples, "", seeds[i], prompts[i], opts.samples_format, info=infotext(0, i), p=p, suffix="-mask-composite")
+            #    if opts.return_mask:
+            #        output_images.append(image_mask)
+            #    if opts.return_mask_composite:
+            #        output_images.append(image_mask_composite)
 
-                if hasattr(p, 'mask_for_overlay') and p.mask_for_overlay and any([opts.save_mask, opts.save_mask_composite, opts.return_mask, opts.return_mask_composite]):
-                    image_mask = p.mask_for_overlay.convert('RGB')
-                    image_mask_composite = Image.composite(image.convert('RGBA').convert('RGBa'), Image.new('RGBa', image.size), images.resize_image(2, p.mask_for_overlay, image.width, image.height).convert('L')).convert('RGBA')
+        del x_samples_ddim
 
-                    if opts.save_mask:
-                        images.save_image(image_mask, p.outpath_samples, "", seeds[i], prompts[i], opts.samples_format, info=infotext(n, i), p=p, suffix="-mask")
+        devices.torch_gc()
 
-                    if opts.save_mask_composite:
-                        images.save_image(image_mask_composite, p.outpath_samples, "", seeds[i], prompts[i], opts.samples_format, info=infotext(n, i), p=p, suffix="-mask-composite")
-
-                    if opts.return_mask:
-                        output_images.append(image_mask)
-
-                    if opts.return_mask_composite:
-                        output_images.append(image_mask_composite)
-
-            del x_samples_ddim
-
-            devices.torch_gc()
-
-            state.nextjob()
+        #state.nextjob() Nope FIXME remove
+        #FIXME iter loop
 
         p.color_corrections = None
 
@@ -643,8 +625,9 @@ def sd_lua_pipeline(prompt):
             if opts.grid_save:
                 images.save_image(grid, p.outpath_grids, "grid", p.all_seeds[0], p.all_prompts[0], opts.grid_format, info=infotext(), short_filename=not opts.grid_extended_filename, p=p, grid=True)
 
-    if not p.disable_extra_networks and extra_network_data:
-        extra_networks.deactivate(p, extra_network_data)
+    #FIXME extra networks?
+    #if not p.disable_extra_networks and extra_network_data:
+    #    extra_networks.deactivate(p, extra_network_data)
 
     devices.torch_gc()
 
