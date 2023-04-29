@@ -433,6 +433,12 @@ def sd_lua_getp():
     )
     return(p)
 
+#FIXME just send p instead of seeds and prompts (and why prompts?)
+def sd_lua_sample(p, c, uc, seeds, subseeds, subseed_strength, prompts):
+    with devices.without_autocast() if devices.unet_needs_upcast else devices.autocast():
+        samples_ddim = p.sample(conditioning=c, unconditional_conditioning=uc, seeds=seeds, subseeds=subseeds, subseed_strength=subseed_strength, prompts=prompts)
+    return(samples_ddim)
+
 def sd_lua_pipeline(prompt):
     devices.torch_gc()
 
@@ -497,6 +503,8 @@ def sd_lua_pipeline(prompt):
 
         #FIXME just have one image?
         for n in range(p.n_iter):
+            print(f"FIXME: {n}") #REMOVE
+        
             p.iteration = n
 
             #FIXME skip button?
@@ -532,8 +540,9 @@ def sd_lua_pipeline(prompt):
                 shared.state.job = f"Batch {n+1} out of {p.n_iter}"
 
             # Diffuse
-            with devices.without_autocast() if devices.unet_needs_upcast else devices.autocast():
-                samples_ddim = p.sample(conditioning=c, unconditional_conditioning=uc, seeds=seeds, subseeds=subseeds, subseed_strength=p.subseed_strength, prompts=prompts)
+            #with devices.without_autocast() if devices.unet_needs_upcast else devices.autocast():
+            #    samples_ddim = p.sample(conditioning=c, unconditional_conditioning=uc, seeds=seeds, subseeds=subseeds, subseed_strength=p.subseed_strength, prompts=prompts)
+            samples_ddim = sd_lua_sample(p, c, uc, seeds, subseeds, p.subseed_strength, prompts)
 
             x_samples_ddim = [decode_first_stage(p.sd_model, samples_ddim[i:i+1].to(dtype=devices.dtype_vae))[0].cpu() for i in range(samples_ddim.size(0))]
             try:

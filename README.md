@@ -13,17 +13,17 @@ It is also NOT a serious extension. It is mostly just an experiment from my side
 
 # Lua commands
 
-`console(text)` Print text string console. (Same as print()) 
+`ui.console(text)` Print text string console. (Same as print()) 
 
-`output(text)` Add text to Output textbox.
+`ui.gallery.add(image)` Add image to the gallery.
 
-`output_clear()` Clear Output textbox.
+`ui.gallery.clear()` Clear the gallery.
+
+`ui.out(text)` Add text to Output textbox.
+
+`ui.clear()` Clear Output textbox.
 
 `process(prompt)` Process a string, returns an image.
-
-`gallery_add(image)` Add image to the gallery.
-
-`gallery_clear()` Clear the gallery.
 
 `clip(text)` 
 
