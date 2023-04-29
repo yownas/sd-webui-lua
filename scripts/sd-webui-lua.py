@@ -48,7 +48,7 @@ def lua_reset():
             'clip': sd_lua_clip,
             'empty_latent': sd_lua_empty_latent,
             'ksampler': sd_lua_ksampler,
-            'pipeline': sd_lua_pipeline2,
+            'pipeline': sd_lua_pipeline,
             'process': sd_lua_process
         }
     G.ui = {
@@ -75,7 +75,7 @@ def sd_lua_console(text):
 
 def sd_lua_output(text):
     global LUA_output
-    LUA_output += str(result)+'\n'
+    LUA_output += str(text)+'\n'
 
 def sd_lua_output_clear():
     global LUA_output
@@ -140,7 +140,8 @@ def sd_lua_ksampler (cond, ncond, latent):
 #def sd_lua_vae (prompt):
 
 
-def sd_lua_pipeline(prompt):
+# REMOVE THIS 
+def OLDsd_lua_pipeline(prompt):
     p = StableDiffusionProcessingTxt2Img(
         sd_model=shared.sd_model,
         outpath_samples=shared.opts.outdir_samples or shared.opts.outdir_txt2img_samples,
@@ -396,13 +397,14 @@ def sd_lua_pipeline(prompt):
     res = Processed(p, output_images, p.all_seeds[0], infotext(), comments="".join(["\n\n" + x for x in comments]), subseed=p.all_subseeds[0], index_of_first_image=index_of_first_image, infotexts=infotexts)
 
     return res.images[0]
+########################################################################### REMOVE
 
-def sd_lua_pipeline2(prompt):
+def sd_lua_getp():
     p = StableDiffusionProcessingTxt2Img(
         sd_model=shared.sd_model,
         outpath_samples=shared.opts.outdir_samples or shared.opts.outdir_txt2img_samples,
         outpath_grids=shared.opts.outdir_grids or shared.opts.outdir_txt2img_grids,
-        prompt=prompt,
+        prompt='',
         styles=[],
         negative_prompt='',
         seed=-1,
@@ -429,36 +431,46 @@ def sd_lua_pipeline2(prompt):
         hr_resize_y=0,
         override_settings=[],
     )
+    return(p)
 
+def sd_lua_pipeline(prompt):
+    devices.torch_gc()
 
+    p = sd_lua_getp()
+
+    p.prompt = prompt
+    fix_seed(p)
+
+    #FIXME make simpler by just allowing strings?
     if type(p.prompt) == list:
         assert len(p.prompt) > 0
     else:
         assert p.prompt is not None
 
-    devices.torch_gc()
-
-    fix_seed(p)
     seed = p.seed
     subseed = p.subseed
 
     comments = {}
 
+    # FIXME remove lists. skip styles?
     if type(p.prompt) == list:
         p.all_prompts = [shared.prompt_styles.apply_styles_to_prompt(x, p.styles) for x in p.prompt]
     else:
         p.all_prompts = p.batch_size * p.n_iter * [shared.prompt_styles.apply_styles_to_prompt(p.prompt, p.styles)]
 
+    # FIXME remove lists. skip styles?
     if type(p.negative_prompt) == list:
         p.all_negative_prompts = [shared.prompt_styles.apply_negative_styles_to_prompt(x, p.styles) for x in p.negative_prompt]
     else:
         p.all_negative_prompts = p.batch_size * p.n_iter * [shared.prompt_styles.apply_negative_styles_to_prompt(p.negative_prompt, p.styles)]
 
+    # FIXME remove lists.
     if type(seed) == list:
         p.all_seeds = seed
     else:
         p.all_seeds = [int(seed) + (x if p.subseed_strength == 0 else 0) for x in range(len(p.all_prompts))]
 
+    # FIXME remove lists.
     if type(subseed) == list:
         p.all_subseeds = subseed
     else:
@@ -470,40 +482,24 @@ def sd_lua_pipeline2(prompt):
     infotexts = []
     output_images = []
 
-    #FIXME remove
-    #cached_uc = [None, None]
-    #cached_c = [None, None]
-    #def get_conds_with_caching(function, required_prompts, steps, cache):
-    #    """
-    #    Returns the result of calling function(shared.sd_model, required_prompts, steps)
-    #    using a cache to store the result if the same arguments have been used before.
-    #    cache is an array containing two elements. The first element is a tuple
-    #    representing the previously used arguments, or None if no arguments
-    #    have been used before. The second element is where the previously
-    #    computed result is stored.
-    #    """
-    #
-    #    if cache[0] is not None and (required_prompts, steps) == cache[0]:
-    #        return cache[1]
-    #
-    #    with devices.autocast():
-    #        cache[1] = function(shared.sd_model, required_prompts, steps)
-    #
-    #    cache[0] = (required_prompts, steps)
-    #    return cache[1]
-
     #with torch.no_grad(), p.sd_model.ema_scope():
     with torch.no_grad():
+
+        #FIXME not needed?
         with devices.autocast():
             p.init(p.all_prompts, p.all_seeds, p.all_subseeds)
 
+        #FIXME not needed? just one image
         if state.job_count == -1:
             state.job_count = p.n_iter
 
         extra_network_data = None
+
+        #FIXME just have one image?
         for n in range(p.n_iter):
             p.iteration = n
 
+            #FIXME skip button?
             if state.skipped:
                 state.skipped = False
 
@@ -525,7 +521,7 @@ def sd_lua_pipeline2(prompt):
                 except:
                     pass
 
-            #FIXME prompts?
+            #FIXME prompts? just a string, if one image?
             with devices.autocast():
                 c = prompt_parser.get_multicond_learned_conditioning(shared.sd_model, prompts, p.steps * step_multiplier)
                 uc = prompt_parser.get_learned_conditioning(shared.sd_model, negative_prompts, p.steps * step_multiplier)
