@@ -45,16 +45,23 @@ def lua_reset():
     LUA_gallery = []
     # Setup python functions (there has to be a better way to do this)
     G.sd = {
-            'clear': sd_lua_output_clear,
             'clip': sd_lua_clip,
-            'console': sd_lua_console,
             'empty_latent': sd_lua_empty_latent,
-            'gallery_add': sd_lua_gallery_add,
-            'gallery_clear': sd_lua_gallery_clear,
             'ksampler': sd_lua_ksampler,
             'pipeline': sd_lua_pipeline2,
             'process': sd_lua_process
         }
+    G.ui = {
+            'clear': sd_lua_output_clear,
+            'console': sd_lua_console,
+            'out': sd_lua_output,
+            'gallery': {
+                'add': sd_lua_gallery_add,
+                'clear': sd_lua_gallery_clear,
+                }
+        }
+#            'gallery_add': sd_lua_gallery_add,
+#            'gallery_clear': sd_lua_gallery_clear,
     return LUA_output, LUA_gallery if len(LUA_gallery) else [Image.frombytes("L", (1, 1), b'\x00')]
 
 def lua_refresh():
@@ -464,26 +471,26 @@ def sd_lua_pipeline2(prompt):
     output_images = []
 
     #FIXME remove
-    cached_uc = [None, None]
-    cached_c = [None, None]
-    def get_conds_with_caching(function, required_prompts, steps, cache):
-        """
-        Returns the result of calling function(shared.sd_model, required_prompts, steps)
-        using a cache to store the result if the same arguments have been used before.
-        cache is an array containing two elements. The first element is a tuple
-        representing the previously used arguments, or None if no arguments
-        have been used before. The second element is where the previously
-        computed result is stored.
-        """
-
-        if cache[0] is not None and (required_prompts, steps) == cache[0]:
-            return cache[1]
-
-        with devices.autocast():
-            cache[1] = function(shared.sd_model, required_prompts, steps)
-
-        cache[0] = (required_prompts, steps)
-        return cache[1]
+    #cached_uc = [None, None]
+    #cached_c = [None, None]
+    #def get_conds_with_caching(function, required_prompts, steps, cache):
+    #    """
+    #    Returns the result of calling function(shared.sd_model, required_prompts, steps)
+    #    using a cache to store the result if the same arguments have been used before.
+    #    cache is an array containing two elements. The first element is a tuple
+    #    representing the previously used arguments, or None if no arguments
+    #    have been used before. The second element is where the previously
+    #    computed result is stored.
+    #    """
+    #
+    #    if cache[0] is not None and (required_prompts, steps) == cache[0]:
+    #        return cache[1]
+    #
+    #    with devices.autocast():
+    #        cache[1] = function(shared.sd_model, required_prompts, steps)
+    #
+    #    cache[0] = (required_prompts, steps)
+    #    return cache[1]
 
     #with torch.no_grad(), p.sd_model.ema_scope():
     with torch.no_grad():
@@ -520,18 +527,15 @@ def sd_lua_pipeline2(prompt):
 
             #FIXME prompts?
             with devices.autocast():
-#                c = prompt_parser.get_learned_conditioning(shared.sd_model, prompts, p.steps * step_multiplier)
-#                uc = prompt_parser.get_learned_conditioning(shared.sd_model, negative_prompts, p.steps * step_multiplier)
                 c = prompt_parser.get_multicond_learned_conditioning(shared.sd_model, prompts, p.steps * step_multiplier)
                 uc = prompt_parser.get_learned_conditioning(shared.sd_model, negative_prompts, p.steps * step_multiplier)
-            #print(c)
-            #c = get_conds_with_caching(prompt_parser.get_multicond_learned_conditioning, prompts, p.steps * step_multiplier, cached_c)
-            #uc = get_conds_with_caching(prompt_parser.get_learned_conditioning, negative_prompts, p.steps * step_multiplier, cached_uc)
-            #print(c)
+
+            #FIXME add function to convert multicond to cond, so we can use same function for c and uc
 
             if p.n_iter > 1:
                 shared.state.job = f"Batch {n+1} out of {p.n_iter}"
 
+            # Diffuse
             with devices.without_autocast() if devices.unet_needs_upcast else devices.autocast():
                 samples_ddim = p.sample(conditioning=c, unconditional_conditioning=uc, seeds=seeds, subseeds=subseeds, subseed_strength=p.subseed_strength, prompts=prompts)
 
