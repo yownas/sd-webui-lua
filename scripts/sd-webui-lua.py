@@ -209,6 +209,7 @@ def sd_lua_vae(samples_ddim):
             raise e
     x_samples_ddim = torch.stack(x_samples_ddim).float()
     x_samples_ddim = torch.clamp((x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
+    return(x_samples_ddim)
 
 # IN: p
 # OUT: image
