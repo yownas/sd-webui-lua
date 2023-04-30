@@ -23,7 +23,7 @@ It is also NOT a serious extension. It is mostly just an experiment from my side
 
 `ui.clear()` Clear Output textbox.
 
-`process(prompt)` Process a string, returns an image.
+`sd.process(prompt)` Process a string, returns an image.
 
-`clip(text)` 
+`sd.cond/negcond(text)` 
 
