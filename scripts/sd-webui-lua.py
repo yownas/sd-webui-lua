@@ -195,7 +195,7 @@ def sd_lua_toimage(latent):
     return image
 
 # IN: image
-#
+# OUT: disappointment (not implemented yet)
 def sd_lua_saveimage(image):
     #if opts.samples_save and not p.do_not_save_samples:
     
@@ -273,39 +273,44 @@ def sd_lua_pipeline(p):
 
 ############################################################################3
 
-
+# IN: p or string
+# OUT: image
 def sd_lua_process(prompt):
-    p = StableDiffusionProcessingTxt2Img(
-        sd_model=shared.sd_model,
-        outpath_samples=shared.opts.outdir_samples or shared.opts.outdir_txt2img_samples,
-        outpath_grids=shared.opts.outdir_grids or shared.opts.outdir_txt2img_grids,
-        prompt=prompt,
-        styles=[],
-        negative_prompt='',
-        seed=-1,
-        subseed=-1,
-        subseed_strength=0,
-        seed_resize_from_h=0,
-        seed_resize_from_w=0,
-        seed_enable_extras=True,
-        sampler_name='Euler a',
-        batch_size=1,
-        n_iter=1,
-        steps=20,
-        cfg_scale=7,
-        width=512,
-        height=512,
-        restore_faces=False,
-        tiling=False,
-        enable_hr=False,
-        denoising_strength=None,
-        hr_scale=0,
-        hr_upscaler=None,
-        hr_second_pass_steps=0,
-        hr_resize_x=0,
-        hr_resize_y=0,
-        override_settings=[],
-    )
+    if isinstance(prompt, str):
+        p = StableDiffusionProcessingTxt2Img(
+            sd_model=shared.sd_model,
+            outpath_samples=shared.opts.outdir_samples or shared.opts.outdir_txt2img_samples,
+            outpath_grids=shared.opts.outdir_grids or shared.opts.outdir_txt2img_grids,
+            prompt=prompt,
+            styles=[],
+            negative_prompt='',
+            seed=-1,
+            subseed=-1,
+            subseed_strength=0,
+            seed_resize_from_h=0,
+            seed_resize_from_w=0,
+            seed_enable_extras=True,
+            sampler_name='Euler a',
+            batch_size=1,
+            n_iter=1,
+            steps=20,
+            cfg_scale=7,
+            width=512,
+            height=512,
+            restore_faces=False,
+            tiling=False,
+            enable_hr=False,
+            denoising_strength=None,
+            hr_scale=0,
+            hr_upscaler=None,
+            hr_second_pass_steps=0,
+            hr_resize_x=0,
+            hr_resize_y=0,
+            override_settings=[],
+        )
+    else:
+        p = prompt
+
     processed = process_images(p)
     p.close()
     return processed.images[0]
