@@ -5,6 +5,8 @@ This is an extension for [Vlad's automatic](https://github.com/vladmandic/automa
 
 It is also NOT a serious extension (yet). It is mostly just an experiment from my side to see if it was possible to do or not. :)
 
+![sd-webui-lua](https://user-images.githubusercontent.com/13150150/235615238-a92f6395-d6f7-4e03-8d52-095edeb8aef2.png)
+
 # Issues
 
 * Gradios Gallery seem to freeze if it get and empty result. "Solved" at the moment by giving it a 1x1 pixel place holder.
