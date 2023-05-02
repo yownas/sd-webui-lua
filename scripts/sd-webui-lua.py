@@ -66,6 +66,7 @@ def lua_reset():
             'out': sd_lua_output,
             'gallery': {
                 'add': sd_lua_gallery_add,
+                'addcaption': sd_lua_gallery_addcaption,
                 'clear': sd_lua_gallery_clear,
                 }
         }
@@ -89,9 +90,15 @@ def sd_lua_output_clear():
     LUA_output = ''
 
 def sd_lua_gallery_add(image):
+    #global LUA_gallery
+    ##image = transforms.ToPILImage()(image).convert("RGB")
+    #LUA_gallery.insert(0, image)
+    sd_lua_gallery_addcaption(image, '')
+
+def sd_lua_gallery_addcaption(image, caption):
     global LUA_gallery
     #image = transforms.ToPILImage()(image).convert("RGB")
-    LUA_gallery.insert(0, image)
+    LUA_gallery.insert(0, (image, caption))
 
 def sd_lua_gallery_clear():
     global LUA_gallery
