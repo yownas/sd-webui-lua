@@ -219,6 +219,7 @@ def sd_lua_vae(samples_ddim):
 # IN: latent
 # OUT: image (maybe)
 def sd_lua_toimage(latent):
+    latent = torch.clamp((latent + 1.0) / 2.0, min=0.0, max=1.0)
     for i, x_sample in enumerate(latent):
         x_sample = 255. * np.moveaxis(x_sample.cpu().numpy(), 0, 2)
         x_sample = x_sample.astype(np.uint8)
