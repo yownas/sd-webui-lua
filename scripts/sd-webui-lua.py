@@ -129,7 +129,7 @@ def ui_lua_gallery_clear():
 def ui_lua_gallery_del(index):
     global LUA_gallery
     # FIXME add code here to match caption
-    del LUA_gallery[index]
+    del LUA_gallery[index-1]
 
 # Empty latent
 # IN: width, height
