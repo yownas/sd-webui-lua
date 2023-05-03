@@ -75,6 +75,9 @@ def lua_reset():
                 'save': ui_lua_imagesave,
                 }
         }
+    G.torch = {
+                'lerp': torch_lerp,
+            }
     return LUA_output, LUA_gallery if len(LUA_gallery) else [Image.frombytes("L", (1, 1), b'\x00')]
 
 def lua_refresh():
@@ -356,6 +359,11 @@ def sd_lua_process(prompt):
     processed = process_images(p)
     p.close()
     return processed.images[0]
+
+### Torch functions
+
+def torch_lerp(v1, v2, weight):
+    return torch.lerp(v1, v2, weight)
 
 def add_tab():
     with gr.Blocks(analytics_enabled=False) as tab:
