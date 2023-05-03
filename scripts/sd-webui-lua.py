@@ -1,13 +1,16 @@
 import gradio as gr
 import lupa
 import numpy as np
+import os
+from pathlib import Path
 from PIL import Image
 import torch
 from torchvision import transforms
 import traceback
 
-from modules import scripts, script_callbacks, devices, ui, shared, processing, sd_samplers, sd_samplers_common
+from modules import scripts, script_callbacks, devices, ui, shared, processing, sd_samplers, sd_samplers_common, paths
 from modules import prompt_parser
+
 import modules.images as images
 
 from modules.shared import opts, cmd_opts, state
@@ -58,16 +61,20 @@ def lua_reset():
             'sample': sd_lua_sample,
             'vae': sd_lua_vae,
             'toimage': sd_lua_toimage,
-            'save': sd_lua_saveimage
         }
     G.ui = {
-            'clear': sd_lua_output_clear,
-            'console': sd_lua_console,
-            'out': sd_lua_output,
+            'clear': ui_lua_output_clear,
+            'console': ui_lua_console,
+            'out': ui_lua_output,
             'gallery': {
-                'add': sd_lua_gallery_add,
-                'addcaption': sd_lua_gallery_addcaption,
-                'clear': sd_lua_gallery_clear,
+                'add': ui_lua_gallery_add,
+                'addc': ui_lua_gallery_addc,
+                'clear': ui_lua_gallery_clear,
+                'del': ui_lua_gallery_del,
+                'getgif': ui_lua_gallery_getgif
+                },
+            'image': {
+                'save': ui_lua_imagesave,
                 }
         }
     return LUA_output, LUA_gallery if len(LUA_gallery) else [Image.frombytes("L", (1, 1), b'\x00')]
@@ -78,31 +85,55 @@ def lua_refresh():
 
 # Functions for Lua
 
-def sd_lua_console(text):
+def ui_lua_console(text):
     print(f"Lua: {text}")
 
-def sd_lua_output(text):
+def ui_lua_output(text):
     global LUA_output
     LUA_output += str(text)+'\n'
 
-def sd_lua_output_clear():
+def ui_lua_output_clear():
     global LUA_output
     LUA_output = ''
 
-def sd_lua_gallery_add(image):
+def ui_lua_gallery_add(image):
     #global LUA_gallery
-    ##image = transforms.ToPILImage()(image).convert("RGB")
-    #LUA_gallery.insert(0, image)
-    sd_lua_gallery_addcaption(image, '')
+    ui_lua_gallery_addc(image, '')
 
-def sd_lua_gallery_addcaption(image, caption):
+def ui_lua_gallery_addc(image, caption):
     global LUA_gallery
     #image = transforms.ToPILImage()(image).convert("RGB")
     LUA_gallery.insert(0, (image, caption))
 
-def sd_lua_gallery_clear():
+def ui_lua_gallery_getgif(duration):
+    global LUA_gallery
+
+    gif = []
+    for i in LUA_gallery:
+        gif.append(i[0])
+
+    path_to_save = os.path.join(opts.outdir_extras_samples, 'lua')
+    if not os.path.exists(path_to_save):
+        try:
+            os.makedirs(path_to_save, exist_ok=True)
+            print('LUA: Creating folder:', path_to_save)
+        except:
+            pass
+    name = images.get_next_sequence_number(path_to_save, '')
+    path_to_save = os.path.join(path_to_save, f"{name}.gif")
+    print(f"YO: {path_to_save}")
+    # FIXME check so it doesn't overwrite images?
+    gif[0].save(path_to_save, save_all=True, append_images=gif[1:], optimize=False, duration=duration, loop=0)
+    return(path_to_save)
+
+def ui_lua_gallery_clear():
     global LUA_gallery
     LUA_gallery = []
+
+def ui_lua_gallery_del(id):
+    global LUA_gallery
+    # FIXME add code here to match caption
+    LUA_gallery.remove(id)
 
 # Empty latent
 # IN: width, height
@@ -203,13 +234,36 @@ def sd_lua_toimage(latent):
     return image
 
 # IN: image
-# OUT: disappointment (not implemented yet)
-def sd_lua_saveimage(image):
-    #if opts.samples_save and not p.do_not_save_samples:
-    
-    outpath_samples=shared.opts.outdir_samples or shared.opts.outdir_txt2img_samples
-    #images.save_image(image, outpath_samples, "", 0, 0, opts.samples_format, info="lua", p=p)
-    return False
+# OUT: string (path to image)
+def ui_lua_imagesave(image, name):
+    path_to_save = os.path.join(opts.outdir_extras_samples, 'lua')
+    if not os.path.exists(path_to_save):
+        try:
+            os.makedirs(path_to_save, exist_ok=True)
+            print('LUA: Creating folder:', path_to_save)
+        except:
+            pass
+    path_to_save = os.path.join(path_to_save, name)
+    # FIXME check so it doesn't overwrite images?
+    image.save(path_to_save)
+    return(path_to_save)
+
+# FIXME remove, doesn't work
+#def sd_lua_imagesavegif(gif_array, name):
+#    images = []
+#    for i in gif_array:
+#        images.append(i)
+#    path_to_save = os.path.join(opts.outdir_extras_samples, 'lua')
+#    if not os.path.exists(path_to_save):
+#        try:
+#            os.makedirs(path_to_save, exist_ok=True)
+#            print('LUA: Creating folder:', path_to_save)
+#        except:
+#            pass
+#    path_to_save = os.path.join(path_to_save, name)
+#    # FIXME check so it doesn't overwrite images?
+#    images[0].save(path_to_save, save_all=True, append_images=images[1:], optimize=False, duration=40, loop=0)
+#    return(path_to_save)
 
 # IN: p
 # OUT: image
