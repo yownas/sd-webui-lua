@@ -382,11 +382,51 @@ def add_tab():
                 """
                 sd-webui-lua link: [Github](http://github.com/yownas/sd-webui-lua/)
 
-                # Functions
+                Functions
+                ---------
 
                 ui.out(string): Write string to Output.
 
                 ui.clear(): Clear Output.
+
+                sd.empty_latent():
+
+                sd.pipeline(string)
+
+                sd.process(string)
+
+                sd.getp()
+
+                sd.cond(string)
+
+                sd.negcond(string)
+
+                sd.sample(latent)
+
+                sd.vae(latent)
+
+                sd.toimage(latent)
+
+
+                ui.clear()
+
+                ui.console(string)
+
+                ui.out(string)
+
+
+                ui.gallery.add(image)
+
+                ui.gallery.addc(image, string)
+
+                ui.gallery.clear()
+
+                ui.gallery.del(int)
+                
+                ui.gallery.getgif(int)
+
+                ui.image.save(image, string)
+
                 """)
 
 
