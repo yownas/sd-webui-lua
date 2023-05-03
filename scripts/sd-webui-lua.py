@@ -50,11 +50,9 @@ def lua_reset():
     LUA_gallery = []
     # Setup python functions (messy list. Will most likely change)
     G.sd = {
-            'cfpipe': sd_lua_cfpipe,
             'empty_latent': sd_lua_empty_latent,
             'pipeline': sd_lua_pipeline,
             'process': sd_lua_process,
-
             'getp': sd_lua_getp,
             'cond': sd_lua_cond,
             'negcond': sd_lua_negcond,
@@ -121,8 +119,6 @@ def ui_lua_gallery_getgif(duration):
             pass
     name = images.get_next_sequence_number(path_to_save, '')
     path_to_save = os.path.join(path_to_save, f"{name}.gif")
-    print(f"YO: {path_to_save}")
-    # FIXME check so it doesn't overwrite images?
     gif[0].save(path_to_save, save_all=True, append_images=gif[1:], optimize=False, duration=duration, loop=0)
     return(path_to_save)
 
@@ -130,10 +126,10 @@ def ui_lua_gallery_clear():
     global LUA_gallery
     LUA_gallery = []
 
-def ui_lua_gallery_del(id):
+def ui_lua_gallery_del(index):
     global LUA_gallery
     # FIXME add code here to match caption
-    LUA_gallery.remove(id)
+    del LUA_gallery[index]
 
 # Empty latent
 # IN: width, height
@@ -248,23 +244,6 @@ def ui_lua_imagesave(image, name):
     image.save(path_to_save)
     return(path_to_save)
 
-# FIXME remove, doesn't work
-#def sd_lua_imagesavegif(gif_array, name):
-#    images = []
-#    for i in gif_array:
-#        images.append(i)
-#    path_to_save = os.path.join(opts.outdir_extras_samples, 'lua')
-#    if not os.path.exists(path_to_save):
-#        try:
-#            os.makedirs(path_to_save, exist_ok=True)
-#            print('LUA: Creating folder:', path_to_save)
-#        except:
-#            pass
-#    path_to_save = os.path.join(path_to_save, name)
-#    # FIXME check so it doesn't overwrite images?
-#    images[0].save(path_to_save, save_all=True, append_images=images[1:], optimize=False, duration=40, loop=0)
-#    return(path_to_save)
-
 # IN: p
 # OUT: image
 def sd_lua_pipeline(p):
@@ -376,75 +355,6 @@ def sd_lua_process(prompt):
     processed = process_images(p)
     p.close()
     return processed.images[0]
-
-# test to write pipeline separate from the webui (if possible)
-def sd_lua_cfpipe(prompt):
-
-    # Get a p to work with
-    p = sd_lua_getp()
-
-    # load checkpoint -> model,clip,vae
-      # save for later
-      #    def guess_model_config_from_state_dict(sd, _filename):
-
-    # clip -> prompt -> cond
-    cond = shared.sd_model.get_learned_conditioning(prompt)
-    uncond = shared.sd_model.get_learned_conditioning('mouse')
-
-    # create empty latent -> latent
-    empty_latent = sd_lua_empty_latent(p.width, p.height).to(shared.device)
-    
-    # model,cond,negcond,latent -> ksampler -> latent (samples)
-    sampler = sd_samplers.create_sampler('Euler a', shared.sd_model)
-    #noise = create_random_tensors(p.init_latent.shape[1:], seeds=seeds, subseeds=subseeds, subseed_strength=p.subseed_strength, seed_resize_from_h=p.seed_resize_from_h, seed_resize_from_w=p.seed_resize_from_w, p=p)
-
-    seed = 123
-    n = devices.randn(seed, (64, 64))
-    noise = n.to(shared.device)
-
-    # Sigmas
-    #tensor([14.6116,  7.8402,  4.6098,  2.9182,  1.9501,  1.3452,  0.9320,  0.6248,
-    #     0.3686,  0.0313,  0.0000], device='cuda:0')
-    #tensor([14.6116, 10.7482,  8.0826,  6.2045,  4.8555,  3.8647,  3.1234,  2.5574,
-    #     2.1154,  1.7648,  1.4805,  1.2456,  1.0484,  0.8784,  0.7296,  0.5964,
-    #     0.4736,  0.3552,  0.2322,  0.0313,  0.0000], device='cuda:0')
-
-
-    sampler = sd_samplers.create_sampler("Euler a", shared.sd_model)
-    #samples =  sampler.sample(p, empty_latent, empty_latent, cond, uncond, None)
-
-    sigmas = torch.tensor([14.6116, 10.7482,  8.0826,  6.2045,  4.8555,  3.8647,  3.1234,  2.5574,
-         2.1154,  1.7648,  1.4805,  1.2456,  1.0484,  0.8784,  0.7296,  0.5964,
-         0.4736,  0.3552,  0.2322,  0.0313,  0.0000], device='cuda:0')
-    #samples = sampler.sample(shared.sd_model, empty_latent, sigmas, extra_args=None, callback=None, disable=None, eta=1., s_noise=1., noise_sampler=None)
-    samples = sampler.sample(shared.sd_model, empty_latent, sigmas)
-
-
-    #samples =  sampler.sample_img2img(p, empty_latent, empty_latent, cond, uncond, None)
-
-   #         samples = self.sampler.sample(self, x, conditioning, unconditional_conditioning, image_conditioning=self.txt2img_image_conditioning(x))
-
-
-    # just copy forward
-    #        samples = self.launch_sampling(t_enc + 1, lambda: self.func(self.model_wrap_cfg, xi, extra_args=extra_args, disable=False, callback=self.callback_state, **extra_params_kwargs))
-
-
-
-
-
-
-    return(samples)
-
-    #def sample_img2img(self, p, x, noise, conditioning, unconditional_conditioning, steps=None, image_conditioning=None):
-    #def sample(self, p, x, conditioning, unconditional_conditioning, steps=None, image_conditioning=None):
-
-    
-    
-    # samples, vae -> vae decode -> image
-    # image -> save/show
-
-
-    #return image
 
 def add_tab():
     with gr.Blocks(analytics_enabled=False) as tab:
