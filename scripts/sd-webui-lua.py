@@ -400,52 +400,53 @@ def add_tab():
             with gr.Accordion(label='Lua Extras...', open=False):
                 gr.Markdown(
                 """
-                sd-webui-lua link: [Github](http://github.com/yownas/sd-webui-lua/)
+sd-webui-lua link: [Github](http://github.com/yownas/sd-webui-lua/)
 
-                Functions
-                ---------
+Functions
+---------
 
-                ui.out(string): Write string to Output.
+ui.out(string): Write string to Output.
 
-                ui.clear(): Clear Output.
+ui.clear(): Clear Output.
                 
-                sd.empty_latent():
+sd.empty_latent():
 
-                sd.pipeline(string)
+sd.pipeline(string)
 
-                sd.process(string)
+sd.process(string)
 
-                sd.getp()
+sd.getp()
 
-                sd.cond(string)
+sd.cond(string)
 
-                sd.negcond(string)
+sd.negcond(string)
 
-                sd.sample(latent)
+sd.sample(latent)
 
-                sd.vae(latent)
+sd.vae(latent)
 
-                sd.toimage(latent)
-
-
-                ui.clear()
-
-                ui.console(string)
-
-                ui.out(string)
+sd.toimage(latent)
 
 
-                ui.gallery.add(image)
+ui.clear()
 
-                ui.gallery.addc(image, string)
+ui.console(string)
 
-                ui.gallery.clear()
+ui.out(string)
 
-                ui.gallery.del(int)
+
+ui.gallery.add(image)
+
+ui.gallery.addc(image, string)
+
+ui.gallery.clear()
+
+ui.gallery.del(int)
                 
-                ui.gallery.getgif(int)
+ui.gallery.getgif(int)
 
-                ui.image.save(image, string)
+ui.image.save(image, string)
+
 
 torch_clamp(v1, min, max):
 
@@ -457,6 +458,7 @@ torch.mul(v1, v2):
 
 
 Default Processing-object:
+--------------------------
 
 p = StableDiffusionProcessingTxt2Img(
     sd_model=shared.sd_model,
@@ -489,7 +491,6 @@ p = StableDiffusionProcessingTxt2Img(
     hr_resize_y=0,
     override_settings=[],
 )
-
                 """)
 
 
