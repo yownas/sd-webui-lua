@@ -17,7 +17,7 @@ c = sd.cond('bunny')
 uc = sd.negcond('banana')
 latent = sd.sample(p, c, uc)
 
-img = sd.toimage(latent)
+img = sd.toimage(sd.clamp(latent))
 ui.gallery.add(img)
 
 vae = sd.vae(latent)

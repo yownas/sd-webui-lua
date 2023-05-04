@@ -50,6 +50,7 @@ def lua_reset():
     LUA_gallery = []
     # Setup python functions (messy list. Will most likely change)
     G.sd = {
+            'clamp': sd_lua_clamp,
             'empty_latent': sd_lua_empty_latent,
             'pipeline': sd_lua_pipeline,
             'process': sd_lua_process,
@@ -220,9 +221,13 @@ def sd_lua_vae(samples_ddim):
     return(x_samples_ddim)
 
 # IN: latent
+# OUT: latent
+def sd_lua_clamp(latent):
+    return torch.clamp((latent + 1.0) / 2.0, min=0.0, max=1.0)
+
+# IN: latent
 # OUT: image (maybe)
 def sd_lua_toimage(latent):
-    latent = torch.clamp((latent + 1.0) / 2.0, min=0.0, max=1.0)
     for i, x_sample in enumerate(latent):
         x_sample = 255. * np.moveaxis(x_sample.cpu().numpy(), 0, 2)
         x_sample = x_sample.astype(np.uint8)
@@ -397,6 +402,8 @@ def add_tab():
                 ui.out(string): Write string to Output.
 
                 ui.clear(): Clear Output.
+                
+                sd_lua_clamp(latent):
 
                 sd.empty_latent():
 
