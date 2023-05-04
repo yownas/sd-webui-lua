@@ -17,7 +17,11 @@ c = sd.cond('bunny')
 uc = sd.negcond('banana')
 latent = sd.sample(p, c, uc)
 
-img = sd.toimage(sd.clamp(latent))
+-- Change values in the range -1 to 1 -> 0 to 1
+tmp = torch.add(latent, 1.0)
+tmp = torch.mul(tmp, 0.5)
+tmp = torch.clamp(tmp, 0.0, 1.0)
+img = sd.toimage(tmp)
 ui.gallery.add(img)
 
 vae = sd.vae(latent)

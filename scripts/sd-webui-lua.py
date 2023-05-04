@@ -50,7 +50,6 @@ def lua_reset():
     LUA_gallery = []
     # Setup python functions (messy list. Will most likely change)
     G.sd = {
-            'clamp': sd_lua_clamp,
             'empty_latent': sd_lua_empty_latent,
             'pipeline': sd_lua_pipeline,
             'process': sd_lua_process,
@@ -77,7 +76,10 @@ def lua_reset():
                 }
         }
     G.torch = {
+                'add': torch_add,
+                'clamp': torch_clamp,
                 'lerp': torch_lerp,
+                'mul': torch_mul,
             }
     return LUA_output, LUA_gallery if len(LUA_gallery) else [Image.frombytes("L", (1, 1), b'\x00')]
 
@@ -219,11 +221,6 @@ def sd_lua_vae(samples_ddim):
     x_samples_ddim = torch.stack(x_samples_ddim).float()
     x_samples_ddim = torch.clamp((x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
     return(x_samples_ddim)
-
-# IN: latent
-# OUT: latent
-def sd_lua_clamp(latent):
-    return torch.clamp((latent + 1.0) / 2.0, min=0.0, max=1.0)
 
 # IN: latent
 # OUT: image (maybe)
@@ -370,6 +367,15 @@ def sd_lua_process(prompt):
 def torch_lerp(v1, v2, weight):
     return torch.lerp(v1, v2, weight)
 
+def torch_add(v1, v2):
+    return torch.add(v1, v2)
+
+def torch_mul(v1, v2):
+    return torch.mul(v1, v2)
+
+def torch_clamp(v1, min, max):
+    return torch.clamp(v1, min=0.0, max=1.0)
+
 def add_tab():
     with gr.Blocks(analytics_enabled=False) as tab:
         with gr.Row():
@@ -403,8 +409,6 @@ def add_tab():
 
                 ui.clear(): Clear Output.
                 
-                sd_lua_clamp(latent):
-
                 sd.empty_latent():
 
                 sd.pipeline(string)
@@ -442,6 +446,15 @@ def add_tab():
                 ui.gallery.getgif(int)
 
                 ui.image.save(image, string)
+
+torch_clamp(v1, min, max):
+
+torch.lerp(v1, v2, weight):
+    
+torch.add(v1, v2):
+
+torch.mul(v1, v2):
+
 
 Default Processing-object:
 
