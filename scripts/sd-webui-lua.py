@@ -376,77 +376,100 @@ Functions
 ---------
 
 > ui.out(string):
+
 Write string to the Output box.
 
 > ui.clear():
+
 Clear Output box.
                 
 > sd.empty_latent():
+
 Get a latent filled with zeroes. (Not used at the moment)
 
 > sd.pipeline(p):
+
 Deconstructed pipeline from the webui.Generate picture from processing object.
 
 > sd.process(string):
+
 Webui pipeline, generate image from a prompt-string or processing object.
 
 > sd.getp():
+
 Returns a default processing object (see below).
 
 > sd.cond(string):
+
 Run prompt string through clip.
 
 > sd.negcond(string)
+
 Run negative prompt string through clip. (These are unfortunately slightly different at the momemt)
 
 > sd.sample(latent):
+
 Turn noise into something that can get turned into an image.
 
 > sd.vae(latent):
+
 Variational auto-envoder.
 
 > sd.toimage(latent)
+
 Last step to get an image after the vae
 
 > ui.clear():
+
 Clear everything.
 
 > ui.console(string):
+
 Print to console. 
 
 > ui.out(string):
+
 Print to Output box.
 
 > ui.gallery.add(image):
+
 Add image to Gallery
 
 > ui.gallery.addc(image, string):
+
 Add image with caption to Gallery.
 
 > ui.gallery.clear():
+
 Clear the gallery.
 
 > ui.gallery.del(int):
+
 Delete image from galler. (Starts at 1 since this is Lua.)
                 
 > ui.gallery.getgif(duration):
+
 Get a gif from the images in the gallery. Show each image for "duration" ms.
 
 > ui.image.save(image, name):
+
 Same image.
 
 > torch_clamp(v1, min, max):
+
 Clamp vector v1 between min and max.
 
 > torch.lerp(v1, v2, weight):
+
 Linear interpolation of v1 and v2, by weight. v1 + weight * (v2 - v1)
     
 > torch.add(v1, v2):
+
 Add v2 (vector or float) to v1.
 
 > torch.mul(v1, v2):
-Multiply v2 (vector or float) with v1.
 
+Multiply v2 (vector or float) with v1.
 
 Default Processing-object:
 --------------------------
