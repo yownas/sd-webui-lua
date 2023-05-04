@@ -325,6 +325,7 @@ def sd_lua_pipeline(p):
 def sd_lua_process(prompt):
     if isinstance(prompt, str):
         p = sd_lua_getp()
+        p.prompt = prompt
     else:
         p = prompt
 
