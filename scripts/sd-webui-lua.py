@@ -443,6 +443,40 @@ def add_tab():
 
                 ui.image.save(image, string)
 
+Default Processing-object:
+
+p = StableDiffusionProcessingTxt2Img(
+    sd_model=shared.sd_model,
+    outpath_samples=shared.opts.outdir_samples or shared.opts.outdir_txt2img_samples,
+    outpath_grids=shared.opts.outdir_grids or shared.opts.outdir_txt2img_grids,
+    prompt='',
+    styles=[],
+    negative_prompt='',
+    seed=-1,
+    subseed=-1,
+    subseed_strength=0,
+    seed_resize_from_h=0,
+    seed_resize_from_w=0,
+    seed_enable_extras=True,
+    sampler_name='Euler a',
+    batch_size=1,
+    n_iter=1,
+    steps=20,
+    cfg_scale=7,
+    width=512,
+    height=512,
+    restore_faces=False,
+    tiling=False,
+    enable_hr=False,
+    denoising_strength=0,
+    hr_scale=0,
+    hr_upscaler=None,
+    hr_second_pass_steps=0,
+    hr_resize_x=0,
+    hr_resize_y=0,
+    override_settings=[],
+)
+
                 """)
 
 
