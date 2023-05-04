@@ -17,5 +17,7 @@ It is also NOT a very serious extension (yet). It is mostly just an experiment f
 
 * Some kind of progress-bar/feedback while running would be nice.
 
+* More examples to show how things work.
+
 * More ideas. I'd rather have a PR than a vague Issue. But I'm happy for any input. :)
 

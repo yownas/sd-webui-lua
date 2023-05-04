@@ -80,6 +80,8 @@ def lua_reset():
                 'clamp': torch_clamp,
                 'lerp': torch_lerp,
                 'mul': torch_mul,
+                'size': torch_size,
+                'new_zeros': torch_new_zeros,
             }
     return LUA_output, LUA_gallery if len(LUA_gallery) else [Image.frombytes("L", (1, 1), b'\x00')]
 
@@ -347,6 +349,13 @@ def torch_mul(v1, v2):
 def torch_clamp(v1, min, max):
     return torch.clamp(v1, min=0.0, max=1.0)
 
+def torch_size(v1):
+    return v1.size()
+
+def torch_new_zeros(size):
+    tensor = torch.tensor((), dtype=torch.float32)
+    return tensor.new_zeros(tuple(size.values()), device=torch.device('cuda'))
+
 def add_tab():
     with gr.Blocks(analytics_enabled=False) as tab:
         with gr.Row():
@@ -471,6 +480,15 @@ Add v2 (vector or float) to v1.
 > torch.mul(v1, v2):
 
 Multiply v2 (vector or float) with v1.
+
+> torch.size(v1):
+
+Return the size of vector v1
+
+> torch.new_zeros(size):
+
+Take a Lua table, size, and create a zero-filled tensor.
+
 
 Default Processing-object:
 --------------------------
