@@ -18,7 +18,6 @@ from modules.shared import opts, cmd_opts, state
 from modules.processing import StableDiffusionProcessingTxt2Img, Processed, process_images, fix_seed, decode_first_stage, apply_overlay, apply_color_correction, create_infotext, create_random_tensors
 
 def filter_attribute_access(obj, attr_name, is_setting):
-    #if isinstance(attr_name, unicode):
     if isinstance(attr_name, (str)):
         if not attr_name.startswith('_'):
             return attr_name
@@ -60,6 +59,7 @@ def lua_reset():
             'sample': sd_lua_sample,
             'vae': sd_lua_vae,
             'toimage': sd_lua_toimage,
+            'makegif': sd_lua_makegif,
         }
     G.ui = {
             'clear': ui_lua_output_clear,
@@ -104,32 +104,19 @@ def ui_lua_output_clear():
     LUA_output = ''
 
 def ui_lua_gallery_add(image):
-    #global LUA_gallery
     ui_lua_gallery_addc(image, '')
 
 def ui_lua_gallery_addc(image, caption):
     global LUA_gallery
-    #image = transforms.ToPILImage()(image).convert("RGB")
     LUA_gallery.insert(0, (image, caption))
 
 def ui_lua_gallery_getgif(duration):
     global LUA_gallery
-
     gif = []
     for i in LUA_gallery:
-        gif.append(i[0])
-
-    path_to_save = os.path.join(opts.outdir_extras_samples, 'lua')
-    if not os.path.exists(path_to_save):
-        try:
-            os.makedirs(path_to_save, exist_ok=True)
-            print('LUA: Creating folder:', path_to_save)
-        except:
-            pass
-    name = images.get_next_sequence_number(path_to_save, '')
-    path_to_save = os.path.join(path_to_save, f"{name}.gif")
-    gif[0].save(path_to_save, save_all=True, append_images=gif[1:], optimize=False, duration=duration, loop=0)
-    return(path_to_save)
+        gif.insert(0, i[0])
+    gif_path = sd_lua_list2gif(gif, duration)
+    return(gif_path)
 
 def ui_lua_gallery_clear():
     global LUA_gallery
@@ -237,6 +224,26 @@ def sd_lua_toimage(latent):
     devices.torch_gc()
 
     return image
+
+def sd_lua_list2gif(gif, duration):
+    path_to_save = os.path.join(opts.outdir_extras_samples, 'lua')
+    if not os.path.exists(path_to_save):
+        try:
+            os.makedirs(path_to_save, exist_ok=True)
+            print('LUA: Creating folder:', path_to_save)
+        except:
+            pass
+    name = images.get_next_sequence_number(path_to_save, '')
+    path_to_save = os.path.join(path_to_save, f"{name}.gif")
+    gif[0].save(path_to_save, save_all=True, append_images=gif[1:], optimize=False, duration=duration, loop=0)
+    return(path_to_save)
+    
+# IN: Lua-table with images
+# OUT: string, name of gif
+def sd_lua_makegif(table, duration):
+    gif = [x for x in table.values()]
+    gif_path = sd_lua_list2gif(gif, duration)
+    return(gif_path)
 
 # IN: image
 # OUT: string (path to image)
