@@ -378,7 +378,7 @@ def add_tab():
                 with gr.Row():
                     results = gr.Textbox(label="Output", show_label=True, lines=10)
 
-        run.click(lua_run, show_progress=False, inputs=[lua_code], outputs=[results, gallery])
+        run.click(lua_run, show_progress=True, inputs=[lua_code], outputs=[results, gallery])
         reset.click(lua_reset, show_progress=False, inputs=[], outputs=[results, gallery])
         refresh.click(lua_refresh, show_progress=False, inputs=[], outputs=[results, gallery])
         with gr.Row():
