@@ -1,6 +1,6 @@
 -- Mix Clip encoded texts - Yownas
-prompt = 'cat'
-prompt2 = 'dog'
+prompt = 'dog'
+prompt2 = 'cat'
 
 p = sd.getp()
 p.seed = 42
@@ -18,4 +18,4 @@ do
 end
 
 gif = ui.gallery.getgif(200)
-ui.gallery.addc(gif, 'Cat to dog gif')
+ui.gallery.addc(gif, 'Dog to cat gif')
