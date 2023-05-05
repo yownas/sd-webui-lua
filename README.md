@@ -7,6 +7,10 @@ It is also NOT a very serious extension (yet). It is mostly just an experiment f
 
 ![sd-webui-lua](https://user-images.githubusercontent.com/13150150/235615238-a92f6395-d6f7-4e03-8d52-095edeb8aef2.png)
 
+# Usage
+
+It way too early to even try writing some sort of guide. You can see all functions if you open up the "Lua Extras..." at the bottom, but the best way to get started is probably by looking in the `examples` folder and tinker with those.
+
 # Issues & todo
 
 * Gradios Gallery seem to freeze if it get and empty result. "Solved" at the moment by giving it a 1x1 pixel place holder.

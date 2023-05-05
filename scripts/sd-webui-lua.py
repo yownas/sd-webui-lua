@@ -354,7 +354,12 @@ def torch_size(v1):
 
 def torch_new_zeros(size):
     tensor = torch.tensor((), dtype=torch.float32)
+    # Lua will return a "table", which for python looks like a dict, so we need to
+    # pick  out the values (skipping the keys) and make it into a tuple
     return tensor.new_zeros(tuple(size.values()), device=torch.device('cuda'))
+
+def torch_copy(v):
+    return copy(v)
 
 def add_tab():
     with gr.Blocks(analytics_enabled=False) as tab:
