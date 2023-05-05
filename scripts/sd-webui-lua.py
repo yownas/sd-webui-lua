@@ -480,6 +480,20 @@ Variational auto-envoder.
 <b>sd.toimage(latent):</b><br>
 Last step to get an image after the vae
 </p>
+
+<p>
+<b>sd.textencode(string):</b><br>
+Get a tensor from Clips text encode
+</p>
+<p>
+<b>sd.clip2negcond(text encode):</b><br>
+Convert tensor to a negative conditioning used by functions from the webui.
+</p>
+<p>
+<b>sd.negcond2cond(negcond):</b><br>
+Convert a negative conditioning to conditioning used by functions from the webui.
+</p>
+
 <p>
 <b>ui.clear():</b><br>
 Clear everything.
