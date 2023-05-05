@@ -391,152 +391,153 @@ def add_tab():
         refresh.click(lua_refresh, show_progress=False, inputs=[], outputs=[results, gallery])
         with gr.Row():
             with gr.Accordion(label='Lua Extras...', open=False):
-                gr.Markdown(
+                gr.HTML(
                 """
-sd-webui-lua link: [Github](http://github.com/yownas/sd-webui-lua/)
+sd-webui-lua links: <a grep=http://github.com/yownas/sd-webui-lua/>Github</a>
 
-Functions
----------
-
-> ui.out(string):
-
+<p>
+<h2>Functions:</h2>
+<p>
+<b>ui.out(string):</b><br>
 Write string to the Output box.
-
-> ui.clear():
-
+</p>
+<p>
+<b>ui.clear():</b><br>
 Clear Output box.
-                
-> sd.empty_latent():
-
+</p>
+<p>
+<b>sd.empty_latent():</b><br>
 Get a latent filled with zeroes. (Not used at the moment)
-
-> sd.pipeline(p):
-
+</p>
+<p>
+<b>sd.pipeline(p):</b><br>
 Deconstructed pipeline from the webui.Generate picture from processing object.
-
-> sd.process(string):
-
+</p>
+<p>
+<b>sd.process(string):</b><br>
 Webui pipeline, generate image from a prompt-string or processing object.
-
-> sd.getp():
-
+</p>
+<p>
+<b>sd.getp():</b><br>
+</p>
 Returns a default processing object (see below).
-
-> sd.cond(string):
-
+<p>
+<b> sd.cond(string):</b><br>
 Run prompt string through clip.
-
-> sd.negcond(string)
-
+</p>
+<p>
+<b>sd.negcond(string)</b><br>
 Run negative prompt string through clip. (These are unfortunately slightly different at the momemt)
-
-> sd.sample(latent):
-
+</p>
+<p>
+<b>sd.sample(latent):</b><br>
 Turn noise into something that can get turned into an image.
-
-> sd.vae(latent):
-
+</p>
+<p>
+<b>sd.vae(latent):</b><br>
 Variational auto-envoder.
-
-> sd.toimage(latent)
-
+</p>
+<p>
+<b>sd.toimage(latent):</b><br>
 Last step to get an image after the vae
-
-> ui.clear():
-
+</p>
+<p>
+<b>ui.clear():</b><br>
 Clear everything.
-
-> ui.console(string):
-
+</p>
+<p>
+<b>ui.console(string):</b><br>
 Print to console. 
-
-> ui.out(string):
-
+</p>
+<p>
+<b>ui.out(string):</b><br>
 Print to Output box.
-
-> ui.gallery.add(image):
-
+</p>
+<p>
+<b>ui.gallery.add(image):</b><br>
 Add image to Gallery
-
-> ui.gallery.addc(image, string):
-
+</p>
+<p>
+<b>ui.gallery.addc(image, string):</b><br>
 Add image with caption to Gallery.
-
-> ui.gallery.clear():
-
+</p>
+<p>
+<b>ui.gallery.clear():</b><br>
 Clear the gallery.
-
-> ui.gallery.del(int):
-
+</p>
+<p>
+<b>ui.gallery.del(int):</b><br>
 Delete image from galler. (Starts at 1 since this is Lua.)
-                
-> ui.gallery.getgif(duration):
-
+</p>
+<p>
+<b>ui.gallery.getgif(duration):</b><br>
 Get a gif from the images in the gallery. Show each image for "duration" ms.
-
-> ui.image.save(image, name):
-
+</p>
+<p>
+<b>ui.image.save(image, name):</b><br>
 Same image.
-
-> torch_clamp(v1, min, max):
-
+</p>
+<p>
+<b>torch_clamp(v1, min, max):</b><br>
 Clamp vector v1 between min and max.
-
-> torch.lerp(v1, v2, weight):
-
+</p>
+<p>
+<b>torch.lerp(v1, v2, weight):</b><br>
 Linear interpolation of v1 and v2, by weight. v1 + weight * (v2 - v1)
-    
-> torch.add(v1, v2):
-
+</p>
+<p>
+<b>torch.add(v1, v2):</b><br>
 Add v2 (vector or float) to v1.
-
-> torch.mul(v1, v2):
-
+</p>
+<p>
+<b>torch.mul(v1, v2):</b><br>
 Multiply v2 (vector or float) with v1.
-
-> torch.size(v1):
-
+</p>
+<p>
+<b>torch.size(v1):</b><br>
 Return the size of vector v1
-
-> torch.new_zeros(size):
-
+</p>
+<p>
+<b>torch.new_zeros(size):</b><br>
 Take a Lua table, size, and create a zero-filled tensor.
+</p>
 
-
-Default Processing-object:
---------------------------
-
+<p>
+<h2>Default Processing-object:</h2><br>
+<pre>
 p = StableDiffusionProcessingTxt2Img(
-- sd_model=shared.sd_model,
-- outpath_samples=shared.opts.outdir_samples or shared.opts.outdir_txt2img_samples,
-- outpath_grids=shared.opts.outdir_grids or shared.opts.outdir_txt2img_grids,
-- prompt='',
-- styles=[],
-- negative_prompt='',
-- seed=-1,
-- subseed=-1,
-- subseed_strength=0,
-- seed_resize_from_h=0,
-- seed_resize_from_w=0,
-- seed_enable_extras=True,
-- sampler_name='Euler a',
-- batch_size=1,
-- n_iter=1,
-- steps=20,
-- cfg_scale=7,
-- width=512,
-- height=512,
-- restore_faces=False,
-- tiling=False,
-- enable_hr=False,
-- denoising_strength=0,
-- hr_scale=0,
-- hr_upscaler=None,
-- hr_second_pass_steps=0,
-- hr_resize_x=0,
-- hr_resize_y=0,
-- override_settings=[],
+ sd_model=shared.sd_model,
+ outpath_samples=shared.opts.outdir_samples or shared.opts.outdir_txt2img_samples,
+ outpath_grids=shared.opts.outdir_grids or shared.opts.outdir_txt2img_grids,
+ prompt='',
+ styles=[],
+ negative_prompt='',
+ seed=-1,
+ subseed=-1,
+ subseed_strength=0,
+ seed_resize_from_h=0,
+ seed_resize_from_w=0,
+ seed_enable_extras=True,
+ sampler_name='Euler a',
+ batch_size=1,
+ n_iter=1,
+ steps=20,
+ cfg_scale=7,
+ width=512,
+ height=512,
+ restore_faces=False,
+ tiling=False,
+ enable_hr=False,
+ denoising_strength=0,
+ hr_scale=0,
+ hr_upscaler=None,
+ hr_second_pass_steps=0,
+ hr_resize_x=0,
+ hr_resize_y=0,
+ override_settings=[],
 )
+</pre>
+</p>
                 """)
 
 
