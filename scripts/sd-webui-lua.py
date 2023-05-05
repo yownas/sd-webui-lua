@@ -491,7 +491,7 @@ Convert tensor to a negative conditioning used by functions from the webui.
 </p>
 <p>
 <b>sd.negcond2cond(negcond):</b><br>
-Convert a negative conditioning to conditioning used by functions from the webui.
+Convert a negative conditioning to conditioning used by functions from the webui. The regular prompt and the negative prompt is treated slightly different internally, this is why this is needed.
 </p>
 
 <p>
