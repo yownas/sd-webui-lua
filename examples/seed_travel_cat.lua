@@ -1,3 +1,4 @@
+-- Seed travel, making a gif using the images in the Gallery - Yownas
 -- Get a Processing-object
 p = sd.getp()
 
