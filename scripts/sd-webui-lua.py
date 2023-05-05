@@ -1,3 +1,4 @@
+from collections import namedtuple
 import gradio as gr
 import lupa
 import numpy as np
@@ -60,6 +61,11 @@ def lua_reset():
             'vae': sd_lua_vae,
             'toimage': sd_lua_toimage,
             'makegif': sd_lua_makegif,
+
+            'textencode': sd_lua_textencode,
+            'clip2negcond': sd_lua_clip2negcond,
+            'negcond2cond': sd_lua_negcond2cond,
+
         }
     G.ui = {
             'clear': ui_lua_output_clear,
@@ -170,17 +176,84 @@ def sd_lua_getp():
     )
     return(p)
 
-# Conditioning
-# IN: string
-# OUT: cond
-def sd_lua_cond (prompt):
+# Conditioning functions
+ScheduledPromptConditioning = namedtuple("ScheduledPromptConditioning", ["end_at_step", "cond"])
+class ComposableScheduledPromptConditioning:
+    def __init__(self, schedules, weight=1.0):
+        self.schedules: List[ScheduledPromptConditioning] = schedules
+        self.weight: float = weight
+class MulticondLearnedConditioning:
+    def __init__(self, shape, batch):
+        self.shape: tuple = shape  # the shape field is needed to send this object to DDIM/PLMS
+        self.batch: List[List[ComposableScheduledPromptConditioning]] = batch
+
+def sd_lua_cond(prompt):
     with devices.autocast():
         cond = prompt_parser.get_multicond_learned_conditioning(shared.sd_model, [prompt], 1) # steps hardcoded, some auto1111 tricks won't work
-    return cond
-def sd_lua_negcond (prompt):
+    return(cond)
+def sd_lua_negcond(prompt):
     with devices.autocast():
         cond = prompt_parser.get_learned_conditioning(shared.sd_model, [prompt], 1) # steps hardcoded, some auto1111 tricks won't work
-    return cond
+    return(cond)
+
+def sd_lua_textencode(prompt): # Prompt to learned conditioning
+    with devices.autocast():
+        conds = shared.sd_model.get_learned_conditioning(prompt)
+    return(conds)
+
+def sd_lua_clip2negcond(conds): # Probably need a better name than clip
+    res = []
+    cond_schedule = []
+
+    with devices.autocast():
+        for cond in conds:
+            cond_schedule.append(ScheduledPromptConditioning(1000, cond))
+    res.append(cond_schedule)
+    return(res)
+    #return(cond_schedule)
+
+def sd_lua_negcond2cond(cond):
+    #with devices.autocast():
+
+#    [[ScheduledPromptConditioning(end_at_step=1, cond=tensor([[-0.3885,  0.0230, -0.0522,  ..., -0.4901, -0.3066,  0.0674],
+#        [ 0.0281, -1.3261,  0.3095,  ..., -0.5250,  0.9740,  0.6652],
+#        [-0.3685, -1.2341, -0.5623,  ...,  0.0523, -0.0083, -1.6847],
+#        ...,
+#        [ 0.6331, -0.8065, -0.7957,  ...,  1.4280, -0.7524, -0.2764],
+#        [ 0.6315, -0.7948, -0.7988,  ...,  1.4809, -0.7745, -0.2611],
+#        [ 0.6108, -0.6832, -0.6721,  ...,  1.4510, -0.7056, -0.3101]],
+#       device='cuda:0'))]]
+
+    return(None)
+
+#    res = []
+#
+#    prompt_schedules = get_learned_conditioning_prompt_schedules(prompts, steps)
+#    cache = {}
+#
+#    for prompt, prompt_schedule in zip(prompts, prompt_schedules):
+#
+#        cached = cache.get(prompt, None)
+#        if cached is not None:
+#            res.append(cached)
+#            continue
+#
+#        texts = [x[1] for x in prompt_schedule]
+#        conds = model.get_learned_conditioning(texts)
+#
+#        cond_schedule = []
+#        for i, (end_at_step, text) in enumerate(prompt_schedule):
+#            cond_schedule.append(ScheduledPromptConditioning(end_at_step, conds[i]))
+#
+#        cache[prompt] = cond_schedule
+#        res.append(cond_schedule)
+#
+#    return res
+
+
+
+
+
 
 # IN: p, c, uc
 # OUT: latent
