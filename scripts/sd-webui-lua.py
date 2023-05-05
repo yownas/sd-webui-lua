@@ -33,12 +33,13 @@ def lua_run(lua_code):
     global LUA_output, LUA_gallery
     try:
         result = L.execute(lua_code)
+        if result:
+            LUA_output += str(result)+'\n'
     except Exception as err:
         traceback.print_exc()
         result = f"ERROR: {err}"
         print(f"LUA {result}")
-    if result:
-        LUA_output += str(result)+'\n'
+        raise gr.Error(result)
     # Weird work-around, gr.Gallery seem to freeze the ui if it get an empty reply https://github.com/gradio-app/gradio/issues/3944
     return LUA_output, LUA_gallery if len(LUA_gallery) else [Image.frombytes("L", (1, 1), b'\x00')]
 
