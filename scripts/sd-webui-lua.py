@@ -91,6 +91,8 @@ def lua_reset():
                 'div': torch_div,
                 'size': torch_size,
                 'new_zeros': torch_new_zeros,
+                'max': torch_max,
+                'min': torch_min,
             }
     return LUA_output, LUA_gallery if len(LUA_gallery) else [Image.frombytes("L", (1, 1), b'\x00')]
 
@@ -404,6 +406,12 @@ def torch_div(v1, v2):
 def torch_clamp(v1, min, max):
     return torch.clamp(v1, min=min, max=max)
 
+def torch_max(v1):
+    return torch.max(v1)
+
+def torch_min(v1):
+    return torch.min(v1)
+
 def torch_size(v1):
     return v1.size()
 
@@ -569,6 +577,14 @@ Return the size of vector v1
 <p>
 <b>torch.new_zeros(size):</b><br>
 Take a Lua table, size, and create a zero-filled tensor.
+</p>
+<p>
+<b>torch.max(v):</b><br>
+Return the max value in v.
+</p>
+<p>
+<b>torch.min(v):</b><br>
+Return the min value in v.
 </p>
 
 <p>
