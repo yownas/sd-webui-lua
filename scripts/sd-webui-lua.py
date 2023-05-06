@@ -84,9 +84,11 @@ def lua_reset():
         }
     G.torch = {
                 'add': torch_add,
+                'sub': torch_sub,
                 'clamp': torch_clamp,
                 'lerp': torch_lerp,
                 'mul': torch_mul,
+                'div': torch_div,
                 'size': torch_size,
                 'new_zeros': torch_new_zeros,
             }
@@ -390,11 +392,17 @@ def torch_lerp(v1, v2, weight):
 def torch_add(v1, v2):
     return torch.add(v1, v2)
 
+def torch_sub(v1, v2):
+    return torch.sub(v1, v2)
+
 def torch_mul(v1, v2):
     return torch.mul(v1, v2)
 
+def torch_div(v1, v2):
+    return torch.div(v1, v2)
+
 def torch_clamp(v1, min, max):
-    return torch.clamp(v1, min=0.0, max=1.0)
+    return torch.clamp(v1, min=min, max=max)
 
 def torch_size(v1):
     return v1.size()
@@ -543,8 +551,16 @@ Linear interpolation of v1 and v2, by weight. v1 + weight * (v2 - v1)
 Add v2 (vector or float) to v1.
 </p>
 <p>
+<b>torch.sub(v1, v2):</b><br>
+Subtract v2 (vector or float) from v1.
+</p>
+<p>
 <b>torch.mul(v1, v2):</b><br>
 Multiply v2 (vector or float) with v1.
+</p>
+<p>
+<b>torch.div(v1, v2):</b><br>
+Divide v1 with v2 (vector or float).
 </p>
 <p>
 <b>torch.size(v1):</b><br>
