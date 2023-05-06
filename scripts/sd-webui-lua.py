@@ -429,7 +429,7 @@ def torch_min(v1):
     return torch.min(v1)
 
 def torch_size(v1):
-    return v1.size()
+    return list(v1.size())
 
 def torch_new_zeros(size):
     tensor = torch.tensor((), dtype=torch.float32)
