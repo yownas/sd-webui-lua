@@ -233,9 +233,9 @@ def sd_lua_sample(p, c, uc):
     fix_seed(p)
 
     # Fix c and uc so they are of the correc type
-    if not c == None:
+    if c == None:
         c = ''
-    if not uc == None:
+    if uc == None:
         uc = ''
     if isinstance(c, str):
         c = sd_lua_cond(c)
