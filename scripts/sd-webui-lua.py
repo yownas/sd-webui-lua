@@ -229,6 +229,22 @@ def sd_lua_negcond2cond(negcond):
 # OUT: latent
 def sd_lua_sample(p, c, uc):
     fix_seed(p)
+
+    # Fix c and uc so they are of the correc type
+    if not c:
+        c = ''
+    if not uc:
+        uc = ''
+    if isinstance(c, str):
+        c = sd_lua_cond(c)
+    if torch.is_tensor(c):
+        c = sd_lua_clip2negcond(c)
+        c = sd_lua_negcond2cond(c)
+    if isinstance(uc, str):
+        uc = sd_lua_negcond(uc)
+    if torch.is_tensor(uc):
+        uc = sd_lua_clip2negcond(uc)
+
     with devices.without_autocast() if devices.unet_needs_upcast else devices.autocast():
         samples_ddim = p.sample(conditioning=c, unconditional_conditioning=uc, seeds=[p.seed], subseeds=[p.subseed], subseed_strength=p.subseed_strength, prompts=[p.prompt])
     return(samples_ddim)
@@ -485,8 +501,8 @@ Run prompt string through clip.
 Run negative prompt string through clip. (These are unfortunately slightly different at the momemt)
 </p>
 <p>
-<b>sd.sample(latent):</b><br>
-Turn noise into something that can get turned into an image.
+<b>sd.sample(p, cond, negcond):</b><br>
+Turn noise into something that can get turned into an image. Takes a Processing object, a cond and a negcond value. Cond and negcond can also be Null, string or a tensor from sd.textencode().
 </p>
 <p>
 <b>sd.vae(latent):</b><br>
