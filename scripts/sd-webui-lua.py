@@ -93,6 +93,8 @@ def lua_reset():
                 'new_zeros': torch_new_zeros,
                 'max': torch_max,
                 'min': torch_min,
+                't2f': torch_t2f,
+                'f2t': torch_f2t,
             }
     return LUA_output, LUA_gallery if len(LUA_gallery) else [Image.frombytes("L", (1, 1), b'\x00')]
 
@@ -231,9 +233,9 @@ def sd_lua_sample(p, c, uc):
     fix_seed(p)
 
     # Fix c and uc so they are of the correc type
-    if not c:
+    if not c == None:
         c = ''
-    if not uc:
+    if not uc == None:
         uc = ''
     if isinstance(c, str):
         c = sd_lua_cond(c)
@@ -437,6 +439,12 @@ def torch_new_zeros(size):
     # pick  out the values (skipping the keys) and make it into a tuple
     return tensor.new_zeros(tuple(size.values()), device=torch.device('cuda'))
 
+def torch_t2f(tensor):
+    return float(tensor)
+def torch_f2t(tensor):
+    return float(tensor)
+
+
 def torch_copy(v):
     return copy(v)
 
@@ -601,6 +609,14 @@ Return the max value in v.
 <p>
 <b>torch.min(v):</b><br>
 Return the min value in v.
+</p>
+<p>
+<b>torch.f2t(tensor):</b><br>
+Return a tensor from a float.
+</p>
+<p>
+<b>torch.t2f(tensor):</b><br>
+Return a float from a tensor.
 </p>
 
 <p>
