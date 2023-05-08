@@ -425,10 +425,10 @@ def torch_clamp(v1, min, max):
     return torch.clamp(v1, min=min, max=max)
 
 def torch_max(v1):
-    return torch.max(v1)
+    return float(torch.max(v1))
 
 def torch_min(v1):
-    return torch.min(v1)
+    return float(torch.min(v1))
 
 def torch_size(v1):
     return list(v1.size())
