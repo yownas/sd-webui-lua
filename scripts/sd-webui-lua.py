@@ -276,14 +276,14 @@ def sd_lua_vae(samples_ddim):
 # IN: latent
 # OUT: image (maybe)
 def sd_lua_toimage(latent):
-    for i, x_sample in enumerate(latent):
-        x_sample = 255. * np.moveaxis(x_sample.cpu().numpy(), 0, 2)
-        x_sample = x_sample.astype(np.uint8)
-
-        image = Image.fromarray(x_sample)
-
-    devices.torch_gc()
-
+    if len(latent.size()) > 3: # Really ugly kludge
+        latent = latent[0]
+    #for i, x_sample in enumerate(latent):
+    #    x_sample = 255. * np.moveaxis(x_sample.cpu().numpy(), 0, 2)
+    #    x_sample = x_sample.astype(np.uint8)
+    #image = Image.fromarray(x_sample)
+    T = transforms.ToPILImage()
+    image = T(latent)
     return image
 
 def sd_lua_list2gif(gif, duration):
