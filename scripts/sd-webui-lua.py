@@ -103,6 +103,7 @@ def lua_refresh():
     return LUA_output, LUA_gallery if len(LUA_gallery) else [Image.frombytes("L", (1, 1), b'\x00')]
 
 # Functions for Lua
+
 def ui_lua_console(text):
     print(f"Lua: {text}")
 
@@ -471,7 +472,7 @@ def add_tab():
             with gr.Accordion(label='Lua Extras...', open=False):
                 gr.HTML(
                 """
-sd-webui-lua links: <a grep=http://github.com/yownas/sd-webui-lua/>Github</a>
+sd-webui-lua links: <a href="http://github.com/yownas/sd-webui-lua/">Github</a>
 
 <p>
 <h2>Functions:</h2>
