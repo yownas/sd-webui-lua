@@ -11,15 +11,19 @@ It way too early to even try writing some sort of guide. You can see all (I hope
 
 # Issues & todo
 
-* Gradios Gallery seem to freeze if it get and empty result. "Solved" at the moment by giving it a 1x1 pixel place holder. 
+* Gradios Gallery seem to freeze if it get and empty result. "Solved" at the moment by giving it a 1x1 pixel place holder. (This might be fixed now, just waiting for webui to update)
 
 * Textarea should be a gr.Code box instead, but there seem to be problems with the css.
 
 * Needs a lot more functions to manipulate/access things. (and a save button/function)
 
-* Some kind of progress-bar/feedback while running would be nice.
+* Split sd.sample() into more parts.
 
-* More examples to show how things work.
+* Maybe import the diffusers-library, but I'm not sure how to use that with ckpt/safetensors.
+
+* Some kind of (more) proper progress-bar/feedback while running would be nice.
+
+* More examples to show how things work. (Or actuall documentation)
 
 * More ideas. I'd rather have a PR than a vague Issue. But I'm happy for any input. :)
 

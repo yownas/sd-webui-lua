@@ -103,7 +103,6 @@ def lua_refresh():
     return LUA_output, LUA_gallery if len(LUA_gallery) else [Image.frombytes("L", (1, 1), b'\x00')]
 
 # Functions for Lua
-
 def ui_lua_console(text):
     print(f"Lua: {text}")
 
