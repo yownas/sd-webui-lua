@@ -7,12 +7,12 @@ dramatic scene, cute sparkles and rainbows]]
 -- We want garbage collecting running
 collectgarbage(restart)
 p = sd.getp()
-p.seed = math.random(10000000)
+p.seed = -1
 c= sd.textencode(prompt)
-uc = sd.negcond('out of focus, blurry, boring and other things we do not want to see')
+uc = sd.negcond('nsfw, out of focus, blurry, boring and other things we do not want to see')
 
--- Encode "nothing"
-e = sd.textencode('')
+-- Get a completely empty "text encode"
+e = torch.new_zeros({1, 77, 768})
 
 -- Copy parts of c into e and generate images along the way
 for y = 0, 767, 1 do
