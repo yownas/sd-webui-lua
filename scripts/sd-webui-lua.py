@@ -10,7 +10,7 @@ from torchvision import transforms
 import traceback
 
 from modules import scripts, script_callbacks, devices, ui, shared, processing, sd_samplers, sd_samplers_common, paths
-from modules import prompt_parser
+from modules import prompt_parser, ui
 
 import modules.images as images
 
@@ -29,7 +29,7 @@ G = L.globals()
 LUA_output = ''
 LUA_gallery = []
 
-def lua_run(lua_code):
+def lua_run(id_task, lua_code):
     global LUA_output, LUA_gallery
     try:
         result = L.execute(lua_code)
@@ -41,7 +41,7 @@ def lua_run(lua_code):
         print(f"LUA {result}")
         raise gr.Error(result)
     # Weird work-around, gr.Gallery seem to freeze the ui if it get an empty reply https://github.com/gradio-app/gradio/issues/3944
-    return LUA_output, LUA_gallery if len(LUA_gallery) else [Image.frombytes("L", (1, 1), b'\x00')]
+    return LUA_output, LUA_gallery if len(LUA_gallery) else [Image.frombytes("L", (1, 1), b'\x00')], ''
 
 def lua_reset():
     global L, G, LUA_output, LUA_gallery
@@ -80,7 +80,8 @@ def lua_reset():
                 },
             'image': {
                 'save': ui_lua_imagesave,
-                }
+                },
+            'status': ui_status,
         }
     G.torch = {
                 'add': torch_add,
@@ -139,9 +140,13 @@ def ui_lua_gallery_del(index):
     # FIXME add code here to match caption
     del LUA_gallery[index-1]
 
+def ui_status(text):
+    shared.state.textinfo = text
+
 # Empty latent
 # IN: width, height
 # OUT: latent
+# FIXME, remove this, use torch.new_zeros() instead
 def sd_lua_empty_latent (w, h):
     tensor = torch.tensor((), dtype=torch.float32)
     return tensor.new_zeros((w, h))
@@ -459,13 +464,23 @@ def add_tab():
                     run = gr.Button('Run', variant='primary')
                     reset = gr.Button('Reset')
                     refresh = gr.Button('Refresh')
+                with gr.Group(elem_id="sd_webui_lua_results"):
+                    with gr.Row():
+                        res_info = gr.HTML()
+                    with gr.Row(visible=False):
+                        res = gr.Label("")
             with gr.Column(scale=1):
                 with gr.Row():
                     gallery = gr.Gallery(label="Gallery").style(preview=True, grid=4)
                 with gr.Row():
                     results = gr.Textbox(label="Output", show_label=True, lines=10)
 
-        run.click(lua_run, show_progress=True, inputs=[lua_code], outputs=[results, gallery])
+        run.click(
+            fn=ui.wrap_gradio_gpu_call(lua_run, extra_outputs=['']),
+            _js="submit_sd_webui_lua",
+            inputs=[res, lua_code],
+            outputs=[results, gallery, res_info]
+        )
         reset.click(lua_reset, show_progress=False, inputs=[], outputs=[results, gallery])
         refresh.click(lua_refresh, show_progress=False, inputs=[], outputs=[results, gallery])
         with gr.Row():
@@ -569,6 +584,10 @@ Get a gif from the images in the gallery. Show each image for "duration" ms.
 <p>
 <b>ui.image.save(image, name):</b><br>
 Same image.
+</p>
+<p>
+<b>ui.status(text):</b><br>
+Update status-text under the buttons during run.
 </p>
 <p>
 <b>torch_clamp(v1, min, max):</b><br>
