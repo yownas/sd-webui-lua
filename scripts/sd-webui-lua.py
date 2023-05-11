@@ -476,6 +476,7 @@ def add_tab():
                     results = gr.Textbox(label="Output", show_label=True, lines=10)
 
         run.click(
+            show_progress=False,
             fn=ui.wrap_gradio_gpu_call(lua_run, extra_outputs=['']),
             _js="submit_sd_webui_lua",
             inputs=[res, lua_code],

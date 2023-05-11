@@ -19,10 +19,10 @@ for y = 0, 767, 1 do
   for x = 0, 76, 1 do
     e[0][x][y] = c[0][x][y]
   end
+  ui.status("Generating step: " .. tostring(y) .. "/768")
   -- Generate an image every 50th row
   if y%50 == 0 then
     ui.gallery.addc(sd.toimage(sd.vae(sd.sample(p, e, uc))), tostring(math.floor(100*y/767)) .. "%")
   end
 end
 ui.gallery.addc(sd.toimage(sd.vae(sd.sample(p, c, uc))), "100%")
-
