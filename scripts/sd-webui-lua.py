@@ -458,8 +458,8 @@ def add_tab():
         with gr.Row():
             with gr.Column(scale=1):
                 # Would use this if the css wasn't broken
-                #lua_code = gr.Code(label="Lua", language=None, show_label=False, lines=30, placeholder="(Lua code)")
-                lua_code = gr.Textbox(label="Lua", show_label=False, lines=30, placeholder="(Lua code)")
+                lua_code = gr.Code(label="Lua", elem_id="lua_code", language=None, show_label=False, lines=30, placeholder="(Lua code)")
+                #lua_code = gr.Textbox(label="Lua", show_label=False, lines=30, placeholder="(Lua code)")
                 with gr.Row():
                     run = gr.Button('Run', variant='primary')
                     reset = gr.Button('Reset')
