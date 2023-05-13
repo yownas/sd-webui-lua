@@ -267,6 +267,9 @@ def sd_lua_sample(p, c, uc):
 
     with devices.without_autocast() if devices.unet_needs_upcast else devices.autocast():
         samples_ddim = p.sample(conditioning=c, unconditional_conditioning=uc, seeds=[p.seed], subseeds=[p.subseed], subseed_strength=p.subseed_strength, prompts=[p.prompt])
+
+    devices.torch_gc()
+
     return(samples_ddim)
 
 # IN: latent
@@ -289,6 +292,9 @@ def sd_lua_vae(samples_ddim):
             raise e
     x_samples_ddim = torch.stack(x_samples_ddim).float()
     x_samples_ddim = torch.clamp((x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
+
+    devices.torch_gc()
+
     return(x_samples_ddim)
 
 # IN: latent
