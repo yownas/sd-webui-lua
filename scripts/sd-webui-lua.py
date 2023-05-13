@@ -5,6 +5,7 @@ import numpy as np
 import os
 from pathlib import Path
 from PIL import Image
+import re
 import torch
 from torchvision import transforms
 import traceback
@@ -33,6 +34,9 @@ LUA_gallery = []
 
 def lua_run(id_task, lua_code):
     global LUA_output, LUA_gallery
+    # Crop --START-- and --END--
+    lua_code = re.sub('.*\n--START--', '', lua_code, 1, flags=re.S)
+    lua_code = re.sub('\n--END--.*', '', lua_code, 1, flags=re.S)
     try:
         result = L.execute(lua_code)
         if result:
