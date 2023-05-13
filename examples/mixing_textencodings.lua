@@ -51,3 +51,6 @@ ui.status("Generating image 3/4")
 ui.gallery.addc(sd.toimage(sd.vae(sd.sample(p, e1, uc))), "Mixed 1")
 ui.status("Generating image 4/4")
 ui.gallery.addc(sd.toimage(sd.vae(sd.sample(p, e2, uc))), "Mixed 2")
+
+-- Return the seed to the Output box
+return(p.seed)
