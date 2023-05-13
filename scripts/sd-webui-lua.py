@@ -65,6 +65,7 @@ def lua_reset():
             'vae': sd_lua_vae,
             'toimage': sd_lua_toimage,
             'makegif': sd_lua_makegif,
+            'getsamplers': sd_lua_getsamplers,
 
             'textencode': sd_lua_textencode,
             'clip2negcond': sd_lua_clip2negcond,
@@ -114,7 +115,6 @@ def lua_refresh():
     #return LUA_output, LUA_gallery
 
 # Functions for Lua
-
 def ui_lua_console(text):
     print(f"Lua: {text}")
 
@@ -160,6 +160,9 @@ def ui_status(text):
 def sd_lua_empty_latent (w, h):
     tensor = torch.tensor((), dtype=torch.float32)
     return tensor.new_zeros((w, h))
+
+def sd_lua_getsamplers():
+    return([x.name for x in sd_samplers.all_samplers])
 
 # IN:
 # OUT: p
