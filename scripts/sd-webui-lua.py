@@ -93,6 +93,7 @@ def lua_reset():
             'status': ui_status,
         }
     G.torch = {
+                'abs': torch_abs,
                 'add': torch_add,
                 'sub': torch_sub,
                 'clamp': torch_clamp,
@@ -436,6 +437,9 @@ def sd_lua_process(prompt):
 
 def torch_lerp(v1, v2, weight):
     return torch.lerp(v1, v2, weight)
+
+def torch_abs(v1):
+    return torch.abs(v1)
 
 def torch_add(v1, v2):
     return torch.add(v1, v2)

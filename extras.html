@@ -1,161 +1,169 @@
-sd-webui-lua links: <a href="http://github.com/yownas/sd-webui-lua/">Github</a> <a href="https://github.com/yownas/sd-webui-lua/wiki">Wiki</a> <a href="https://github.com/scoder/lupa">Lupa</a>
-
-<p>
-<h2>Functions:</h2>
-<p>
-<b>ui.out(string):</b><br>
-Write string to the Output box.
-</p>
-<p>
-<b>ui.clear():</b><br>
-Clear Output box.
-</p>
-<p>
-<b>sd.empty_latent():</b><br>
-Get a latent filled with zeroes. (Not used at the moment)
-</p>
-<p>
-<b>sd.pipeline(p):</b><br>
-Deconstructed pipeline from the webui.Generate picture from processing object.
-</p>
-<p>
-<b>sd.process(string):</b><br>
-Webui pipeline, generate image from a prompt-string or processing object.
-</p>
-<p>
-<b>sd.getp():</b><br>
-</p>
-Returns a default processing object (see below).
-<p>
-<b> sd.cond(string):</b><br>
-Run prompt string through clip.
-</p>
-<p>
-<b>sd.negcond(string)</b><br>
-Run negative prompt string through clip. (These are unfortunately slightly different at the momemt)
-</p>
-<p>
-<b>sd.sample(p, cond, negcond):</b><br>
-Turn noise into something that can get turned into an image. Takes a Processing object, a cond and a negcond value. Cond and negcond can also be Null, string or a tensor from sd.textencode().
-</p>
-<p>
-<b>sd.vae(latent):</b><br>
-Variational auto-envoder.
-</p>
-<p>
-<b>sd.toimage(latent):</b><br>
-Last step to get an image after the vae
-</p>
-
-<p>
-<b>sd.textencode(string):</b><br>
-Get a tensor from Clips text encode
-</p>
-<p>
-<b>sd.clip2negcond(text encode):</b><br>
-Convert tensor to a negative conditioning used by functions from the webui.
-</p>
-<p>
-<b>sd.negcond2cond(negcond):</b><br>
-Convert a negative conditioning to conditioning used by functions from the webui. The regular prompt and the negative prompt is treated slightly different internally, this is why this is needed.
-</p>
-<p>
-<b>sd.getsamplers():</b><br>
-Get list of samplers.
-</p>
-
-<p>
-<b>ui.clear():</b><br>
-Clear everything.
-</p>
-<p>
-<b>ui.console(string):</b><br>
-Print to console. 
-</p>
-<p>
-<b>ui.out(string):</b><br>
-Print to Output box.
-</p>
-<p>
-<b>ui.gallery.add(image):</b><br>
-Add image to Gallery
-</p>
-<p>
-<b>ui.gallery.addc(image, string):</b><br>
-Add image with caption to Gallery.
-</p>
-<p>
-<b>ui.gallery.clear():</b><br>
-Clear the gallery.
-</p>
-<p>
-<b>ui.gallery.del(int):</b><br>
-Delete image from galler. (Starts at 1 since this is Lua.)
-</p>
-<p>
-<b>ui.gallery.getgif(duration):</b><br>
-Get a gif from the images in the gallery. Show each image for "duration" ms.
-</p>
-<p>
-<b>ui.image.save(image, name):</b><br>
-Same image.
-</p>
-<p>
-<b>ui.status(text):</b><br>
-Update status-text under the buttons during run.
-</p>
-<p>
-<b>torch_clamp(v1, min, max):</b><br>
-Clamp vector v1 between min and max.
-</p>
-<p>
-<b>torch.lerp(v1, v2, weight):</b><br>
-Linear interpolation of v1 and v2, by weight. v1 + weight * (v2 - v1)
-</p>
-<p>
-<b>torch.add(v1, v2):</b><br>
-Add v2 (vector or float) to v1.
-</p>
-<p>
-<b>torch.sub(v1, v2):</b><br>
-Subtract v2 (vector or float) from v1.
-</p>
-<p>
-<b>torch.mul(v1, v2):</b><br>
-Multiply v2 (vector or float) with v1.
-</p>
-<p>
-<b>torch.div(v1, v2):</b><br>
-Divide v1 with v2 (vector or float).
-</p>
-<p>
-<b>torch.size(v1):</b><br>
-Return the size of vector v1
-</p>
-<p>
-<b>torch.new_zeros(size):</b><br>
-Take a Lua table, size, and create a zero-filled tensor.
-</p>
-<p>
-<b>torch.max(v):</b><br>
-Return the max value in v.
-</p>
-<p>
-<b>torch.min(v):</b><br>
-Return the min value in v.
-</p>
-<p>
-<b>torch.f2t(tensor):</b><br>
-Return a tensor from a float.
-</p>
-<p>
-<b>torch.t2f(tensor):</b><br>
-Return a float from a tensor.
-</p>
-
-<p>
-<h2>Default Processing-object:</h2><br>
-<pre>
+<div>
+  sd-webui-lua links:
+  <a href="http://github.com/yownas/sd-webui-lua/">Github</a> | 
+  <a href="https://github.com/yownas/sd-webui-lua/wiki">Wiki</a> | 
+  <a href="https://github.com/scoder/lupa">Lupa</a>
+</div>
+<div>
+	<div>Functions</div>
+	<div>UI</div>
+	<table>
+		<tr>
+			<td>ui.out(string)></td>
+			<td>Write string to the Output box.</td>
+		</tr>
+		<tr>
+			<td>ui.clear()</td>>
+			<td>Clear Output box.</td>
+		</tr>
+		<tr>
+			<td>ui.console(string)</td>
+			<td>Print to console. </td>
+		</tr>
+		<tr>
+			<td>ui.out(string)</td>
+			<td>Print to Output box.</td>
+		</tr>
+		<tr>
+			<td>ui.gallery.add(image)</td>
+			<td>Add image to Gallery,</td>
+		</tr>
+		<tr>
+			<td>ui.gallery.addc(image, string)</td>
+			<td>Add image with caption to Gallery.</td>
+		</tr>
+		<tr>
+			<td>ui.gallery.clear()</td>
+			<td>Clear the gallery.</td>
+		</tr>
+		<tr>
+			<td>ui.gallery.del(index)</td>
+			<td>Delete image from gallery. (Starts at 1 since this is Lua.)</td>
+		</tr>
+		<tr>
+			<td>ui.gallery.getgif(duration)</td>
+			<td>Get a gif from the images in the gallery. Show each image for "duration" ms.</td>
+		</tr>
+		<tr>
+			<td>ui.image.save(image, name)</td>
+			<td>Save image.</td>
+		</tr>
+		<tr>
+			<td>ui.status(text)</td>
+			<td>Update status-text under the buttons during run.</td>
+		</tr>
+	</table>
+	<div>SD</div>
+	<table>
+		<tr>
+			<td>sd.pipeline(p)</td>
+			<td>Deconstructed pipeline from the webui. Generate picture from a Processing object.</td>
+		</tr>
+		<tr>
+			<td>sd.process(string)</td>>
+			<td>Webui pipeline, generate image from a prompt-string or processing object.</td>
+		</tr>
+		<tr>
+			<td>sd.getp()</td>>
+			<td>Returns a default processing object (see below).</td>
+		</tr>
+		<tr>
+			<td> sd.cond(string)</td>
+			<td>Run prompt string through clip.</td>
+		</tr>
+		<tr>
+			<td>sd.negcond(string)</td>
+			<td>Run negative prompt string through clip. (These are unfortunately slightly different at the momemt)</td>
+		</tr>
+		<tr>
+			<td>sd.sample(p, cond, negcond)</td>
+			<td>Turn noise into something that can get turned into an image. Takes a Processing object, a cond and a negcond value. Cond and negcond can also be Null, string or a tensor from sd.textencode().</td>
+		</tr>
+		<tr>
+			<td>sd.vae(latent)</td>>
+			<td>Variational auto-envoder.</td>
+		</tr>
+		<tr>
+			<td>sd.toimage(latent)</td>
+			<td>Last step to get an image after the vae.</td>
+		</tr>
+		<tr>
+			<td>sd.textencode(string)</td>
+			<td>Get a tensor from Clips text encode.</td>
+		</tr>
+		<tr>
+			<td>sd.clip2negcond(text encode)</td>
+			<td>Convert tensor to a negative conditioning used by functions from the webui.</td>
+		</tr>
+		<tr>
+			<td>sd.negcond2cond(negcond)</td>
+			<td>Convert a negative conditioning to conditioning used by functions from the webui. The regular prompt and the negative prompt is treated slightly different internally, this is why this is needed.</td>
+		</tr>
+		<tr>
+			<td>sd.getsamplers()</td>
+			<td>Get list of samplers.</td>
+		</tr>
+	</table>
+	<div>Torch</div>
+	<table>
+		<tr>
+			<td>torch.clamp(v1, min, max)</td>
+			<td>Clamp vector v1 between min and max.</td>
+		</tr>
+		<tr>
+			<td>torch.lerp(v1, v2, weight)</td>
+			<td>Linear interpolation of v1 and v2, by weight. v1 + weight * (v2 - v1).</td>
+		</tr>
+		<tr>
+			<td>torch.abs(v1)</td>
+			<td>Absolute value of v1.</td>
+		</tr>
+		<tr>
+			<td>torch.add(v1, v2)</td>
+			<td>Add v2 (vector or float) to v1.</td>
+		</tr>
+		<tr>
+			<td>torch.sub(v1, v2)</td>
+			<td>Subtract v2 (vector or float) from v1.</td>
+		</tr>
+		<tr>
+			<td>torch.mul(v1, v2)</td>
+			<td>Multiply v2 (vector or float) with v1.</td>
+		</tr>
+		<tr>
+			<td>torch.div(v1, v2)</td>
+			<td>Divide v1 with v2 (vector or float).</td>
+		</tr>
+		<tr>
+			<td>torch.size(v1)</td>
+			<td>Return the size of vector v1.</td>
+		</tr>
+		<tr>
+			<td>torch.new_zeros(size)</td>
+			<td>Take a Lua table, size, and create a zero-filled tensor.</td>
+		</tr>
+		<tr>
+			<td>torch.max(v)</td>
+			<td>Return the max value in v.</td>
+		</tr>
+		<tr>
+			<td>torch.min(v)</td>
+			<td>Return the min value in v.</td>
+		</tr>
+		<tr>
+			<td>torch.f2t(tensor)</td>
+			<td>Return a tensor from a float.</td>
+		</tr>
+		<tr>
+			<td>torch.t2f(tensor)</td>
+			<td>Return a float from a tensor.</td>
+		</tr>
+	</table>
+</div>
+<hr>
+<div>
+	Default Processing-object:<br>
+	<pre>
 p = StableDiffusionProcessingTxt2Img(
  sd_model=shared.sd_model,
  outpath_samples=shared.opts.outdir_samples or shared.opts.outdir_txt2img_samples,
@@ -187,5 +195,5 @@ p = StableDiffusionProcessingTxt2Img(
  hr_resize_y=0,
  override_settings=[],
 )
-</pre>
-</p>
+	</pre>
+</div>
