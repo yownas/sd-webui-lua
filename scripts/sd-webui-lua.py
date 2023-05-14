@@ -85,7 +85,8 @@ def lua_reset():
                 'addc': ui_lua_gallery_addc,
                 'clear': ui_lua_gallery_clear,
                 'del': ui_lua_gallery_del,
-                'getgif': ui_lua_gallery_getgif
+                'getgif': ui_lua_gallery_getgif,
+                'saveall': ui_lua_gallery_saveall,
                 },
             'image': {
                 'save': ui_lua_imagesave,
@@ -145,6 +146,20 @@ def ui_lua_gallery_getgif(duration):
         gif.insert(0, i[0])
     gif_path = sd_lua_list2gif(gif, duration)
     return(gif_path)
+
+def ui_lua_gallery_saveall():
+    path_to_save = os.path.join(opts.outdir_extras_samples, 'lua')
+    if not os.path.exists(path_to_save):
+        try:
+            os.makedirs(path_to_save, exist_ok=True)
+            print('LUA: Creating folder:', path_to_save)
+        except:
+            pass
+    for image in LUA_gallery[::-1]:
+        #gif.insert(0, i[0])
+        name = images.get_next_sequence_number(path_to_save, '')
+        path_to_image = os.path.join(path_to_save, f"{name}.png")
+        image[0].save(path_to_image)
 
 def ui_lua_gallery_clear():
     global LUA_gallery
