@@ -7,7 +7,7 @@ This is an extension for [Vlad's automatic](https://github.com/vladmandic/automa
 
 It way too early to even try writing some sort of guide. You can see all (I hope) functions if you open up the "Lua Extras..." at the bottom, but the best way to get started is probably by looking in the `examples` folder and tinker with those.
 
-![sd-webui-lua](https://user-images.githubusercontent.com/13150150/235615238-a92f6395-d6f7-4e03-8d52-095edeb8aef2.png)
+![sd-webui-lua](https://github.com/yownas/sd-webui-lua/assets/13150150/f5bbd9f0-1519-4219-8ff0-a296c4ec1172)
 
 # Issues & todo
 
