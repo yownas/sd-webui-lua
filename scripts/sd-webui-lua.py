@@ -48,10 +48,7 @@ def lua_run(id_task, lua_input, lua_code):
         result = f"ERROR: {err}"
         print(f"LUA {result}")
         raise gr.Error(result)
-    # Weird work-around, gr.Gallery seem to freeze the ui if it get an empty reply https://github.com/gradio-app/gradio/issues/3944
-    # FIXME
-    return LUA_output, LUA_gallery if len(LUA_gallery) else [Image.frombytes("L", (1, 1), b'\x00')], ''
-#    return LUA_output, LUA_gallery, ''
+    return LUA_output, LUA_gallery, ''
 
 def lua_reset():
     global L, G, LUA_output, LUA_gallery
@@ -111,16 +108,12 @@ def lua_reset():
                 'f2t': torch_f2t,
             }
     devices.torch_gc()
-    # FIXME
-    return LUA_output, LUA_gallery if len(LUA_gallery) else [Image.frombytes("L", (1, 1), b'\x00')]
-    #return LUA_output, LUA_gallery
+    return LUA_output, LUA_gallery
 
 def lua_refresh():
     global LUA_output, LUA_gallery
     devices.torch_gc()
-    # FIXME
-    return LUA_output, LUA_gallery if len(LUA_gallery) else [Image.frombytes("L", (1, 1), b'\x00')]
-    #return LUA_output, LUA_gallery
+    return LUA_output, LUA_gallery
 
 # Functions for Lua
 def ui_lua_console(text):
