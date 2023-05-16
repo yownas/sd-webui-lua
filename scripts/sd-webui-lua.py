@@ -11,7 +11,7 @@ from torchvision import transforms
 import traceback
 
 from modules import scripts, script_callbacks, devices, ui, shared, processing, sd_samplers, sd_samplers_common, paths
-from modules import prompt_parser, ui
+from modules import prompt_parser, ui, face_restoration
 
 import modules.images as images
 
@@ -69,11 +69,10 @@ def lua_reset():
             'toimage': sd_lua_toimage,
             'makegif': sd_lua_makegif,
             'getsamplers': sd_lua_getsamplers,
-
+            'restorefaces': sd_lua_restorefaces,
             'textencode': sd_lua_textencode,
             'clip2negcond': sd_lua_clip2negcond,
             'negcond2cond': sd_lua_negcond2cond,
-
         }
     G.ui = {
             'clear': ui_lua_output_clear,
@@ -178,6 +177,9 @@ def sd_lua_empty_latent (w, h):
 
 def sd_lua_getsamplers():
     return([x.name for x in sd_samplers.all_samplers])
+
+def sd_lua_restorefaces(image):
+    return(face_restoration.restore_faces(np.asarray(image)))
 
 # IN:
 # OUT: p
