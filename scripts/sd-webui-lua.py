@@ -32,11 +32,13 @@ G = L.globals()
 LUA_output = ''
 LUA_gallery = []
 
-def lua_run(id_task, lua_code):
+def lua_run(id_task, lua_input, lua_code):
     global LUA_output, LUA_gallery
     # Crop --START-- and --END--
     lua_code = re.sub('.*\n--START--', '', lua_code, 1, flags=re.S)
     lua_code = re.sub('\n--END--.*', '', lua_code, 1, flags=re.S)
+    # Prepend input
+    lua_code = f"input = [[{lua_input}]]\n{lua_code}"
     try:
         result = L.execute(lua_code)
         if result:
@@ -502,16 +504,18 @@ def add_tab():
                 # Would use this if the css wasn't broken
                 lua_code = gr.Code(label="Lua", elem_id="lua_code", language=None, show_label=False, lines=30, placeholder="(Lua code)")
                 #lua_code = gr.Textbox(label="Lua", show_label=False, lines=30, placeholder="(Lua code)")
-                with gr.Row():
-                    run = gr.Button('Run', variant='primary')
-                    reset = gr.Button('Reset')
-                    refresh = gr.Button('Refresh')
                 with gr.Group(elem_id="sd_webui_lua_results"):
                     with gr.Row():
                         res_info = gr.HTML()
                     with gr.Row(visible=False):
                         res = gr.Label("")
             with gr.Column(scale=1):
+                with gr.Row():
+                    lua_input = gr.Textbox(label="Input", lines=1)
+                with gr.Row():
+                    run = gr.Button('Run', variant='primary')
+                    reset = gr.Button('Reset')
+                    refresh = gr.Button('Refresh')
                 with gr.Row():
                     gallery = gr.Gallery(label="Gallery").style(preview=True, grid=4)
                 with gr.Row():
@@ -521,7 +525,7 @@ def add_tab():
             show_progress=False,
             fn=ui.wrap_gradio_gpu_call(lua_run, extra_outputs=['']),
             _js="submit_sd_webui_lua",
-            inputs=[res, lua_code],
+            inputs=[res, lua_input, lua_code],
             outputs=[results, gallery, res_info]
         )
         reset.click(lua_reset, show_progress=False, inputs=[], outputs=[results, gallery])
