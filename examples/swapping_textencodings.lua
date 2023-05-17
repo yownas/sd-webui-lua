@@ -19,7 +19,7 @@ p.width = 640
 p.height = 512
 p.steps = 15
 p.sampler = "UniPC"
-p.cfg = 4
+p.cfg_scale = 4
 
 ui.status("Encoding text")
 c1 = sd.textencode(prompt1)
