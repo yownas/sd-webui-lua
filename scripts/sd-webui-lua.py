@@ -173,11 +173,9 @@ def ui_status(text):
     shared.state.textinfo = text
 
 def sd_lua_interrogate_clip(image):
-    image = Image.fromarray(image)
     return(shared.interrogator.interrogate(image))
 
 def sd_lua_interrogate_deepbooru(image):
-    image = Image.fromarray(image)
     return(deepbooru.model.tag(image))
 
 # Empty latent
@@ -192,7 +190,7 @@ def sd_lua_getsamplers():
     return([x.name for x in sd_samplers.all_samplers])
 
 def sd_lua_restorefaces(image):
-    return(face_restoration.restore_faces(np.asarray(image)))
+    return(Image.fromarray(face_restoration.restore_faces(np.asarray(image))))
 
 # IN:
 # OUT: p
