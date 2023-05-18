@@ -11,7 +11,7 @@ from torchvision import transforms
 import traceback
 
 from modules import scripts, script_callbacks, devices, ui, shared, processing, sd_samplers, sd_samplers_common, paths
-from modules import prompt_parser, ui, face_restoration
+from modules import prompt_parser, ui, face_restoration, deepbooru
 
 import modules.images as images
 
@@ -73,6 +73,11 @@ def lua_reset():
             'textencode': sd_lua_textencode,
             'clip2negcond': sd_lua_clip2negcond,
             'negcond2cond': sd_lua_negcond2cond,
+            'interrogate': {
+                'clip': sd_lua_interrogate_clip,
+                'blip': sd_lua_interrogate_clip,
+                'deepbooru': sd_lua_interrogate_deepbooru,
+                }
         }
     G.ui = {
             'clear': ui_lua_output_clear,
@@ -166,6 +171,14 @@ def ui_lua_gallery_del(index):
 
 def ui_status(text):
     shared.state.textinfo = text
+
+def sd_lua_interrogate_clip(image):
+    image = Image.fromarray(image)
+    return(shared.interrogator.interrogate(image))
+
+def sd_lua_interrogate_deepbooru(image):
+    image = Image.fromarray(image)
+    return(deepbooru.model.tag(image))
 
 # Empty latent
 # IN: width, height
