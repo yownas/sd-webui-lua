@@ -1,5 +1,5 @@
 # sd-webui-lua
-Generate images with Lua in Stable Diffusion webui.
+Generate images with Lua scripts in Stable Diffusion webui.
 
 This is an extension for [Vlad's SD.next](https://github.com/vladmandic/automatic/) and [automatic1111's stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) to let you run Lua code to generate images (and more?).
 
