@@ -114,6 +114,7 @@ def lua_reset():
                 'min': torch_min,
                 't2f': torch_t2f,
                 'f2t': torch_f2t,
+                'cat': torch_cat,
             }
     devices.torch_gc()
     return LUA_output, LUA_gallery
@@ -512,6 +513,9 @@ def torch_t2f(tensor):
 def torch_f2t(tensor):
     return float(tensor)
 
+def torch_cat(tensor_table, dim):
+    tensors = [x for x in tensor_table.values()]
+    return torch.cat(tuple(tensors), dim)
 
 def torch_copy(v):
     return copy(v)
