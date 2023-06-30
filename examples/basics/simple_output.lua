@@ -10,6 +10,11 @@ ui.out("Adding text to Output with ui.out()")
 print("Using print()")
 ui.console("Using ui.consol()")
 
+-- Log 
+ui.log.info("Some information.")
+ui.log.warning("A warning!")
+ui.log.error("An error! Help!")
+
 -- An optional return() will write to the Output box
 a = 1
 b = 2
