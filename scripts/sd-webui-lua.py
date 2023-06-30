@@ -9,14 +9,11 @@ import re
 import torch
 from torchvision import transforms
 import traceback
-
+from modules.call_queue import wrap_gradio_gpu_call
 from modules import scripts, script_callbacks, devices, ui, shared, processing, sd_samplers, sd_samplers_common, paths
 from modules import prompt_parser, ui, face_restoration, deepbooru
-
 import modules.images as images
-
 from modules.shared import opts, cmd_opts, state
-
 from modules.processing import StableDiffusionProcessingTxt2Img, Processed, process_images, fix_seed, decode_first_stage, apply_overlay, apply_color_correction, create_infotext, create_random_tensors
 
 sd_webui_lua_dir = scripts.basedir()
@@ -34,6 +31,7 @@ LUA_gallery = []
 
 def lua_run(id_task, lua_input, lua_code):
     global LUA_output, LUA_gallery
+    print(f"LUA: START: {id_task}")
     # Crop --START-- and --END--
     lua_code = re.sub('.*\n--START--', '', lua_code, 1, flags=re.S)
     lua_code = re.sub('\n--END--.*', '', lua_code, 1, flags=re.S)
@@ -48,6 +46,7 @@ def lua_run(id_task, lua_input, lua_code):
         result = f"ERROR: {err}"
         print(f"LUA {result}")
         raise gr.Error(result)
+    print(f"LUA: END: {id_task}")
     return LUA_output, LUA_gallery, ''
 
 def lua_reset():
