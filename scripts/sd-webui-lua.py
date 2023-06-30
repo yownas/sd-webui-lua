@@ -13,7 +13,7 @@ from modules.call_queue import wrap_gradio_gpu_call
 from modules import scripts, script_callbacks, devices, ui, shared, processing, sd_samplers, sd_samplers_common, paths
 from modules import prompt_parser, ui, face_restoration, deepbooru
 import modules.images as images
-from modules.shared import opts, cmd_opts, state
+from modules.shared import opts, cmd_opts, state, log
 from modules.processing import StableDiffusionProcessingTxt2Img, Processed, process_images, fix_seed, decode_first_stage, apply_overlay, apply_color_correction, create_infotext, create_random_tensors
 
 sd_webui_lua_dir = scripts.basedir()
@@ -94,6 +94,11 @@ def lua_reset():
                 'save': ui_lua_imagesave,
                 },
             'status': ui_status,
+            'log': {
+                'info': ui_lua_log_info,
+                'warning': ui_lua_log_warning,
+                'error': ui_lua_log_error,
+                }
         }
     G.torch = {
                 'abs': torch_abs,
@@ -170,6 +175,15 @@ def ui_lua_gallery_del(index):
 
 def ui_status(text):
     shared.state.textinfo = text
+
+def ui_lua_log_info(text):
+    log.info(text)
+
+def ui_lua_log_warning(text):
+    log.warning(text)
+
+def ui_lua_log_error(text):
+    log.error(text)
 
 def sd_lua_interrogate_clip(image):
     return(shared.interrogator.interrogate(image))
