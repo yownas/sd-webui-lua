@@ -15,6 +15,10 @@ from modules import prompt_parser, ui, face_restoration, deepbooru
 import modules.images as images
 from modules.shared import opts, cmd_opts, state
 from modules.processing import StableDiffusionProcessingTxt2Img, Processed, process_images, fix_seed, decode_first_stage, apply_overlay, apply_color_correction, create_infotext, create_random_tensors
+try:
+    from modules.rng import ImageRNG
+except ImportError:
+    ImageRNG = None
 
 sd_webui_lua_dir = scripts.basedir()
 
@@ -294,6 +298,11 @@ def sd_lua_negcond2cond(negcond):
 # OUT: latent
 def sd_lua_sample(p, c, uc):
     fix_seed(p)
+
+    opt_C = 4
+    opt_f = 8
+    if ImageRNG is not None:
+        p.rng = ImageRNG((opt_C, p.height // opt_f, p.width // opt_f), [p.seed])
 
     # Fix c and uc so they are of the correc type
     if c == None:
